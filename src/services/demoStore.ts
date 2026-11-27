@@ -41,7 +41,7 @@ export function createInitialDemoState(withSampleData = true): DemoDatabaseState
   const settings: UserSettings = {
     id: 'demo-settings-1',
     user_id: DEMO_USER_ID,
-    theme: 'system',
+    theme: 'dark',
     timezone: 'America/Sao_Paulo',
     review_intervals: [1, 7, 15, 30],
     pomodoro_study_minutes: 25,

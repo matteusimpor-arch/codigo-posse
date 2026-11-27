@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('O Supabase ainda não está configurado neste ambiente.');
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/configuracoes`,
+      redirectTo: `${window.location.origin}/conta`,
     });
     if (error) throw new Error(error.message);
   }, []);

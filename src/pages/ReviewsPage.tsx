@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarClock, CheckCircle2, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { CalendarCheck2, CalendarClock, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { SearchableSubjectTopicPicker } from '../components/SearchableSubjectTopicPicker';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -12,8 +12,8 @@ import { addDaysISO, diffDaysISO, formatDateBR, formatDuration } from '../utils/
 type ReviewTab = 'today' | 'upcoming' | 'done';
 
 const COMPREHENSION_CHIPS: { value: ComprehensionLevel; label: string }[] = [
-  { value: 'revisar_novamente', label: 'Revisar novamente' },
-  { value: 'intermediaria', label: 'Intermediária' },
+  { value: 'revisar_novamente', label: 'Revisar' },
+  { value: 'intermediaria', label: 'Média' },
   { value: 'dominado', label: 'Dominado' },
 ];
 
@@ -36,7 +36,6 @@ export const ReviewsPage: React.FC = () => {
 
   const [tab, setTab] = useState<ReviewTab>('today');
 
-  // Create / Reschedule modal
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Review | null>(null);
   const [subjectId, setSubjectId] = useState('');
@@ -44,7 +43,6 @@ export const ReviewsPage: React.FC = () => {
   const [scheduledDate, setScheduledDate] = useState(todayISO);
   const [notes, setNotes] = useState('');
 
-  // Complete modal
   const [completeTarget, setCompleteTarget] = useState<Review | null>(null);
   const [durationStr, setDurationStr] = useState('20');
   const [comprehension, setComprehension] = useState<ComprehensionLevel>('intermediaria');
@@ -59,7 +57,6 @@ export const ReviewsPage: React.FC = () => {
     return reviews.map((r) => ({ ...r, status: resolveReviewStatus(r, todayISO) }));
   }, [reviews, todayISO]);
 
-  // Hoje = Atrasadas (primeiro, destacadas) + Programadas para hoje
   const todayList = useMemo(
     () =>
       enriched
@@ -191,32 +188,31 @@ export const ReviewsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Revisões
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            {overdueCount > 0
-              ? `${overdueCount} atrasada${overdueCount > 1 ? 's' : ''} na fila de hoje.`
-              : 'Ciclos automáticos de 1, 7, 15 e 30 dias.'}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreate}
-          className="min-h-[44px] inline-flex items-center gap-1.5 rounded-xl bg-[#0F172A] dark:bg-[#D4A853] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white dark:text-[#0F172A] hover:opacity-90 active:scale-[0.99] transition-all shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          Programar
-        </button>
+    <div className="space-y-4">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-[var(--text-main)] tracking-tight">
+          Revisões
+        </h1>
+        <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+          {overdueCount > 0
+            ? `${overdueCount} atrasada${overdueCount > 1 ? 's' : ''} na fila de hoje.`
+            : 'Ciclos automáticos de 1, 7, 15 e 30 dias.'}
+        </p>
       </div>
+
+      {/* Botão principal */}
+      <button
+        type="button"
+        onClick={openCreate}
+        className="w-full min-h-[50px] rounded-xl bg-[var(--gold)] px-5 py-3 text-base font-semibold text-[var(--gold-ink)] flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.99] transition-all"
+      >
+        <Plus className="w-5 h-5" />
+        Programar revisão
+      </button>
 
       {/* 3 Categorias: Hoje, Próximas, Concluídas */}
       <div
-        className="grid grid-cols-3 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/90"
+        className="grid grid-cols-3 p-1 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]"
         role="tablist"
         aria-label="Categorias de revisão"
       >
@@ -225,10 +221,10 @@ export const ReviewsPage: React.FC = () => {
           role="tab"
           aria-selected={tab === 'today'}
           onClick={() => setTab('today')}
-          className={`min-h-[40px] px-2 rounded-lg text-xs font-semibold transition-colors ${
+          className={`min-h-[42px] px-1 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap truncate transition-colors ${
             tab === 'today'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400'
+              ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
+              : 'text-[var(--text-muted)]'
           }`}
         >
           Hoje ({todayList.length})
@@ -238,10 +234,10 @@ export const ReviewsPage: React.FC = () => {
           role="tab"
           aria-selected={tab === 'upcoming'}
           onClick={() => setTab('upcoming')}
-          className={`min-h-[40px] px-2 rounded-lg text-xs font-semibold transition-colors ${
+          className={`min-h-[42px] px-1 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap truncate transition-colors ${
             tab === 'upcoming'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400'
+              ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
+              : 'text-[var(--text-muted)]'
           }`}
         >
           Próximas ({upcomingList.length})
@@ -251,10 +247,10 @@ export const ReviewsPage: React.FC = () => {
           role="tab"
           aria-selected={tab === 'done'}
           onClick={() => setTab('done')}
-          className={`min-h-[40px] px-2 rounded-lg text-xs font-semibold transition-colors ${
+          className={`min-h-[42px] px-1 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap truncate transition-colors ${
             tab === 'done'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400'
+              ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
+              : 'text-[var(--text-muted)]'
           }`}
         >
           Concluídas ({doneList.length})
@@ -263,15 +259,13 @@ export const ReviewsPage: React.FC = () => {
 
       {currentList.length === 0 ? (
         <EmptyState
-          icon={RotateCcw}
+          icon={CalendarCheck2}
           title={tab === 'today' ? 'Tudo em dia por aqui' : 'Nenhuma revisão nesta categoria'}
           description={
             tab === 'today'
               ? 'Você concluiu todas as revisões programadas até hoje.'
               : 'Ao registrar estudos, suas revisões futuras são agendadas automaticamente.'
           }
-          actionLabel="Programar revisão"
-          onAction={openCreate}
         />
       ) : (
         <div className="space-y-2.5">
@@ -284,10 +278,8 @@ export const ReviewsPage: React.FC = () => {
             return (
               <div
                 key={r.id}
-                className={`rounded-2xl border p-4 space-y-3 transition-colors ${
-                  isOverdue
-                    ? 'border-red-300/90 dark:border-red-900/70 bg-red-50/40 dark:bg-red-950/20'
-                    : 'border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900'
+                className={`rounded-2xl border bg-[var(--bg-card)] p-4 space-y-3 ${
+                  isOverdue ? 'border-[var(--negative)]/70' : 'border-[var(--border-color)]/70'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -299,43 +291,41 @@ export const ReviewsPage: React.FC = () => {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                         {isOverdue ? (
-                          <span className="font-bold text-red-600 dark:text-red-400">
+                          <span className="font-bold text-[var(--negative)]">
                             Atrasada ({daysLate}d)
                           </span>
                         ) : r.status === 'realizada' ? (
-                          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                          <span className="font-semibold text-[var(--positive)]">
                             Concluída em {formatDateBR(r.completed_at)}
                           </span>
                         ) : (
-                          <span className="font-semibold text-[#9A7223] dark:text-[#E5C478]">
+                          <span className="font-semibold text-[var(--gold-text)]">
                             {r.scheduled_date === todayISO ? 'Para hoje' : formatDateBR(r.scheduled_date)}
                           </span>
                         )}
                         {r.interval_days !== null && (
                           <>
-                            <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
-                            <span className="text-slate-500 dark:text-slate-400">
+                            <span aria-hidden="true" className="text-[var(--border-color)]">·</span>
+                            <span className="text-[var(--text-muted)]">
                               Ciclo {r.interval_days}d
                             </span>
                           </>
                         )}
                       </div>
 
-                      <h3 className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+                      <h3 className="mt-1 text-sm font-semibold text-[var(--text-main)]">
                         {subj?.name || 'Disciplina'}
                       </h3>
                       {top && (
-                        <p className="text-xs text-slate-600 dark:text-slate-300">{top.name}</p>
+                        <p className="text-xs text-[var(--text-muted)]">{top.name}</p>
                       )}
                       {r.status === 'realizada' && r.duration_seconds && (
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-mono-tabular">
+                        <p className="mt-1 text-xs text-[var(--text-muted)] font-mono-tabular">
                           {formatDuration(r.duration_seconds)}
                         </p>
                       )}
                       {r.notes && (
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          {r.notes}
-                        </p>
+                        <p className="mt-1 text-xs text-[var(--text-muted)]">{r.notes}</p>
                       )}
                     </div>
                   </div>
@@ -343,7 +333,7 @@ export const ReviewsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(r)}
-                    className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 shrink-0"
+                    className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--negative)] shrink-0"
                     aria-label="Excluir revisão"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -351,11 +341,11 @@ export const ReviewsPage: React.FC = () => {
                 </div>
 
                 {r.status !== 'realizada' && (
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex items-center gap-2 pt-0.5">
                     <button
                       type="button"
                       onClick={() => openComplete(r)}
-                      className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0F172A] dark:bg-[#D4A853] px-3 py-2 text-xs font-semibold text-white dark:text-[#0F172A] hover:opacity-90"
+                      className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--gold)] px-3 py-2 text-xs sm:text-sm font-semibold text-[var(--gold-ink)]"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       Concluir
@@ -363,7 +353,7 @@ export const ReviewsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => openReschedule(r)}
-                      className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 py-2 text-xs sm:text-sm font-semibold text-[var(--text-main)]"
                     >
                       <CalendarClock className="w-4 h-4" />
                       Reagendar
@@ -391,11 +381,11 @@ export const ReviewsPage: React.FC = () => {
           />
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+              <label className="text-xs font-semibold text-[var(--text-muted)]">
                 Data programada *
               </label>
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {[
                   ['Hoje', 0],
                   ['Amanhã', 1],
@@ -406,7 +396,7 @@ export const ReviewsPage: React.FC = () => {
                     key={String(lbl)}
                     type="button"
                     onClick={() => setScheduledDate(addDaysISO(todayISO, Number(offset)))}
-                    className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    className="min-h-[32px] px-2.5 rounded-lg bg-[var(--bg-app)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)]"
                   >
                     {lbl}
                   </button>
@@ -418,29 +408,29 @@ export const ReviewsPage: React.FC = () => {
               value={scheduledDate}
               onChange={(e) => setScheduledDate(e.target.value)}
               required
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
               Observações (opcional)
             </label>
             <textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
             />
           </div>
 
-          {errorMsg && <p className="text-xs font-medium text-red-600">{errorMsg}</p>}
+          {errorMsg && <p className="text-xs font-medium text-[var(--negative)]">{errorMsg}</p>}
 
-          <div className="sticky bottom-0 pt-2 bg-white dark:bg-slate-900">
+          <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
             <button
               type="submit"
               disabled={saving}
-              className="w-full min-h-[48px] rounded-xl bg-[#0F172A] dark:bg-[#D4A853] text-sm font-semibold text-white dark:text-[#0F172A] disabled:opacity-60"
+              className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] disabled:opacity-60"
             >
               {saving ? 'Salvando...' : editing ? 'Salvar nova data' : 'Programar revisão'}
             </button>
@@ -456,8 +446,8 @@ export const ReviewsPage: React.FC = () => {
       >
         <form onSubmit={handleComplete} className="space-y-4">
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+              <label className="text-xs font-semibold text-[var(--text-muted)]">
                 Tempo gasto (min)
               </label>
               <div className="flex items-center gap-1.5">
@@ -466,7 +456,7 @@ export const ReviewsPage: React.FC = () => {
                     key={m}
                     type="button"
                     onClick={() => setDurationStr(m)}
-                    className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300"
+                    className="min-h-[32px] px-2.5 rounded-lg bg-[var(--bg-app)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)]"
                   >
                     {m}m
                   </button>
@@ -481,12 +471,12 @@ export const ReviewsPage: React.FC = () => {
               max={600}
               value={durationStr}
               onChange={(e) => setDurationStr(e.target.value)}
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-mono-tabular"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular text-[var(--text-main)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
               Como foi o domínio?
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -497,8 +487,8 @@ export const ReviewsPage: React.FC = () => {
                   onClick={() => setComprehension(chip.value)}
                   className={`min-h-[44px] px-2 py-2 rounded-xl border text-xs font-semibold transition-colors ${
                     comprehension === chip.value
-                      ? 'border-[#D4A853] bg-[#0F172A] text-[#E5C478] dark:bg-[#D4A853] dark:text-[#0F172A]'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                      ? 'border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-ink)]'
+                      : 'border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-main)]'
                   }`}
                 >
                   {chip.label}
@@ -507,33 +497,33 @@ export const ReviewsPage: React.FC = () => {
             </div>
           </div>
 
-          <label className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer py-1">
+          <label className="flex items-center gap-2.5 text-xs text-[var(--text-main)] cursor-pointer py-1 min-h-[40px]">
             <input
               type="checkbox"
               checked={alsoCreateStudySession}
               onChange={(e) => setAlsoCreateStudySession(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-[#D4A853]"
+              className="w-4 h-4 rounded border-[var(--border-color)] accent-[#D4A853]"
             />
             Registrar também na lista de Estudos
           </label>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
               Observações (opcional)
             </label>
             <textarea
               rows={2}
               value={completeNotes}
               onChange={(e) => setCompleteNotes(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
             />
           </div>
 
-          <div className="sticky bottom-0 pt-2 bg-white dark:bg-slate-900">
+          <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
             <button
               type="submit"
               disabled={saving}
-              className="w-full min-h-[48px] rounded-xl bg-[#0F172A] dark:bg-[#D4A853] text-sm font-semibold text-white dark:text-[#0F172A] disabled:opacity-60"
+              className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] disabled:opacity-60"
             >
               {saving ? 'Concluindo...' : 'Concluir revisão'}
             </button>

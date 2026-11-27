@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronDown, ChevronUp, ListChecks } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { STUDY_TYPE_LABELS, type StudyType } from '../types/database';
 import { calculateQuestionMetrics } from '../utils/calculations';
@@ -47,14 +47,14 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
   const [topicId, setTopicId] = useState('');
   const [date, setDate] = useState(todayISO);
 
-  // Study
+  // Estudo
   const [hoursStr, setHoursStr] = useState('1');
   const [minutesStr, setMinutesStr] = useState('0');
   const [studyType, setStudyType] = useState<StudyType>('teoria');
   const [scheduleReviews, setScheduleReviews] = useState(true);
   const [showStudyOptional, setShowStudyOptional] = useState(false);
 
-  // Questions
+  // Questões
   const [correctStr, setCorrectStr] = useState('15');
   const [incorrectStr, setIncorrectStr] = useState('5');
   const [blankStr, setBlankStr] = useState('0');
@@ -192,7 +192,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
       onSaved?.();
       setTimeout(() => {
         onClose();
-      }, 350);
+      }, 300);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao salvar registro.');
     } finally {
@@ -202,14 +202,14 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
 
   return (
     <Modal open={open} onClose={onClose} title="Registro rápido">
-      <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4">
+      <div className="grid grid-cols-2 gap-1 p-1 bg-[var(--bg-app)] border border-[var(--border-color)] rounded-xl mb-4">
         <button
           type="button"
           onClick={() => setTab('study')}
-          className={`flex-1 min-h-[40px] inline-flex items-center justify-center gap-2 rounded-lg text-xs font-semibold transition-colors ${
+          className={`min-h-[42px] inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors ${
             tab === 'study'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400'
+              ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+              : 'text-[var(--text-muted)]'
           }`}
         >
           <BookOpen className="w-4 h-4" />
@@ -218,13 +218,13 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
         <button
           type="button"
           onClick={() => setTab('questions')}
-          className={`flex-1 min-h-[40px] inline-flex items-center justify-center gap-2 rounded-lg text-xs font-semibold transition-colors ${
+          className={`min-h-[42px] inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors ${
             tab === 'questions'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400'
+              ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+              : 'text-[var(--text-muted)]'
           }`}
         >
-          <HelpCircle className="w-4 h-4" />
+          <ListChecks className="w-4 h-4" />
           Questões
         </button>
       </div>
@@ -240,11 +240,11 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
         {tab === 'study' ? (
           <>
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <label className="text-xs font-semibold text-[var(--text-muted)]">
                   Tempo estudado *
                 </label>
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   {[
                     ['30m', 30],
                     ['1h', 60],
@@ -255,7 +255,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                       key={String(label)}
                       type="button"
                       onClick={() => setPresetMinutes(Number(mins))}
-                      className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                      className="min-h-[32px] px-2.5 rounded-lg bg-[var(--bg-app)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)]"
                     >
                       {label}
                     </button>
@@ -272,9 +272,9 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                     max={24}
                     value={hoursStr}
                     onChange={(e) => setHoursStr(e.target.value)}
-                    className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 pr-12 py-2.5 text-sm font-mono-tabular text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                    className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 pr-14 py-2.5 text-base font-mono-tabular text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                   />
-                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--text-muted)]">
                     horas
                   </span>
                 </div>
@@ -287,9 +287,9 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                     max={59}
                     value={minutesStr}
                     onChange={(e) => setMinutesStr(e.target.value)}
-                    className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 pr-12 py-2.5 text-sm font-mono-tabular text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                    className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 pr-12 py-2.5 text-base font-mono-tabular text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                   />
-                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--text-muted)]">
                     min
                   </span>
                 </div>
@@ -297,7 +297,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                 Data
               </label>
               <input
@@ -305,16 +305,16 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
               />
             </div>
 
-            <label className="flex items-center gap-2.5 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer py-1">
+            <label className="flex items-center gap-2.5 text-xs font-medium text-[var(--text-main)] cursor-pointer py-1 min-h-[40px]">
               <input
                 type="checkbox"
                 checked={scheduleReviews}
                 onChange={(e) => setScheduleReviews(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-[#D4A853] focus:ring-[#D4A853]"
+                className="w-4 h-4 rounded border-[var(--border-color)] accent-[#D4A853]"
               />
               Programar revisões ({(settings?.review_intervals ?? [1, 7, 15, 30]).join(', ')} dias)
             </label>
@@ -323,22 +323,22 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowStudyOptional((v) => !v)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white py-1"
+                className="min-h-[40px] inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)]"
               >
                 {showStudyOptional ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 Modalidade e observações (opcional)
               </button>
 
               {showStudyOptional && (
-                <div className="mt-2.5 space-y-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                <div className="mt-2.5 space-y-3 pt-3 border-t border-[var(--border-color)]">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                       Modalidade
                     </label>
                     <select
                       value={studyType}
                       onChange={(e) => setStudyType(e.target.value as StudyType)}
-                      className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm"
+                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
                     >
                       {(Object.keys(STUDY_TYPE_LABELS) as StudyType[]).map((k) => (
                         <option key={k} value={k}>
@@ -348,7 +348,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                       Observações
                     </label>
                     <textarea
@@ -356,7 +356,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Anotações curtas..."
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm"
+                      className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
                     />
                   </div>
                 </div>
@@ -367,7 +367,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
           <>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                   Acertos *
                 </label>
                 <input
@@ -379,11 +379,11 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                   value={correctStr}
                   onChange={(e) => setCorrectStr(e.target.value)}
                   required
-                  className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-emerald-700 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                  className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-[var(--positive)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                   Erros *
                 </label>
                 <input
@@ -395,13 +395,13 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                   value={incorrectStr}
                   onChange={(e) => setIncorrectStr(e.target.value)}
                   required
-                  className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-red-600 dark:text-red-400 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                  className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-[var(--negative)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                 Data
               </label>
               <input
@@ -409,17 +409,17 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
               />
             </div>
 
             {qPreview.total > 0 && (
-              <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3.5 py-2.5 text-xs">
-                <span className="font-mono-tabular">
+              <div className="flex items-center justify-between rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] px-3.5 py-2.5 text-xs font-mono-tabular">
+                <span>
                   Total: <strong>{qPreview.total}</strong>
                 </span>
-                <span className="font-mono-tabular font-semibold text-slate-900 dark:text-white">
-                  {qPreview.accuracyRate?.toFixed(1)}% acertos
+                <span className="font-semibold text-[var(--positive)]">
+                  {qPreview.accuracyRate?.toFixed(0)}% acertos
                 </span>
               </div>
             )}
@@ -428,17 +428,19 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowQuestionOptional((v) => !v)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white py-1"
+                className="min-h-[40px] inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)]"
               >
                 {showQuestionOptional ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 Em branco, banca e observações (opcional)
               </button>
 
               {showQuestionOptional && (
-                <div className="mt-2.5 space-y-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                <div className="mt-2.5 space-y-3 pt-3 border-t border-[var(--border-color)]">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5">Em branco</label>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                        Em branco
+                      </label>
                       <input
                         type="number"
                         inputMode="numeric"
@@ -446,27 +448,31 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                         min={0}
                         value={blankStr}
                         onChange={(e) => setBlankStr(e.target.value)}
-                        className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-mono-tabular"
+                        className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5">Banca</label>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                        Banca
+                      </label>
                       <input
                         type="text"
                         value={examBoard}
                         onChange={(e) => setExamBoard(e.target.value)}
                         placeholder="Ex: Cebraspe"
-                        className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+                        className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5">Observações</label>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                      Observações
+                    </label>
                     <textarea
                       rows={2}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+                      className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
                     />
                   </div>
                 </div>
@@ -476,23 +482,23 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
         )}
 
         {error && (
-          <p className="text-xs font-medium text-red-600 dark:text-red-400" role="alert">
+          <p className="text-xs font-medium text-[var(--negative)]" role="alert">
             {error}
           </p>
         )}
 
         {saved && (
-          <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+          <div className="flex items-center gap-2 text-xs font-medium text-[var(--positive)]">
             <CheckCircle2 className="w-4 h-4" />
             <span>Salvo com sucesso.</span>
           </div>
         )}
 
-        <div className="sticky bottom-0 pt-2 bg-white dark:bg-slate-900">
+        <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
           <button
             type="submit"
             disabled={saving}
-            className="w-full min-h-[48px] rounded-xl bg-[#0F172A] dark:bg-[#D4A853] text-sm font-semibold text-white dark:text-[#0F172A] hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60"
+            className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 transition-opacity disabled:opacity-60"
           >
             {saving ? 'Salvando...' : 'Salvar registro'}
           </button>

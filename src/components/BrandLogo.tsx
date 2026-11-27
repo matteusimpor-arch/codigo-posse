@@ -16,12 +16,12 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   const [imgError, setImgError] = useState(false);
 
   const dimensionClass =
-    size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-12 h-12' : 'w-9 h-9';
+    size === 'sm' ? 'w-7 h-7' : size === 'lg' ? 'w-11 h-11' : 'w-8 h-8';
 
   return (
     <div className="flex items-center gap-2.5 shrink-0 select-none">
       <div
-        className={`${dimensionClass} rounded-xl bg-white p-0.5 border border-slate-200/80 dark:border-slate-700/60 overflow-hidden shrink-0 flex items-center justify-center`}
+        className={`${dimensionClass} rounded-lg bg-white overflow-hidden shrink-0 flex items-center justify-center`}
       >
         {!imgError ? (
           <img
@@ -32,17 +32,17 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             className="w-full h-full object-contain"
           />
         ) : (
-          <span className="font-display text-xs font-extrabold text-[#0F172A]">CP</span>
+          <span className="font-display text-xs font-extrabold text-[#111827]">CP</span>
         )}
       </div>
 
       {!collapsed && (
         <span
           className={`font-display font-bold tracking-tight whitespace-nowrap ${
-            size === 'lg' ? 'text-xl' : size === 'sm' ? 'text-sm' : 'text-base'
-          } ${onDark ? 'text-white' : 'text-slate-900 dark:text-slate-100'}`}
+            size === 'lg' ? 'text-xl' : size === 'sm' ? 'text-base' : 'text-lg'
+          } ${onDark ? 'text-white' : 'text-[var(--text-main)]'}`}
         >
-          Código da <span className="text-[#B8892E] dark:text-[#D4A853]">Posse</span>
+          Código da Posse
         </span>
       )}
     </div>

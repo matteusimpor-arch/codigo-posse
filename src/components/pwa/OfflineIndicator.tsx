@@ -11,11 +11,11 @@ export const OfflineIndicator: React.FC = () => {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 z-50 flex items-center gap-2.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/95 px-4 py-2.5 text-xs font-medium text-amber-900 dark:text-amber-100 shadow-lg"
+      className="fixed bottom-20 md:bottom-4 left-3.5 right-3.5 md:left-auto md:right-4 z-50 flex items-center gap-2.5 rounded-xl border border-[var(--gold)] bg-[var(--bg-card)] px-4 py-2.5 text-xs font-medium text-[var(--text-main)]"
     >
-      <WifiOff className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+      <WifiOff className="w-4 h-4 text-[var(--gold-text)] shrink-0" />
       <span>
-        Sem conexão com a internet. Novos lançamentos dependem de conexão para sincronização segura com o banco de dados.
+        Sem conexão com a internet. Novos registros exigem conexão para sincronização.
       </span>
     </div>
   );

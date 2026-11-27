@@ -1,15 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import {
-  AlertTriangle,
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Flame,
-  HelpCircle,
-  TrendingUp,
-} from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { AlertTriangle, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useData } from '../contexts/DataContext';
 import {
@@ -44,8 +35,6 @@ export const EvolutionPage: React.FC = () => {
 
   const [chartView, setChartView] = useState<'weekly' | 'monthly'>('weekly');
   const [chartMetric, setChartMetric] = useState<'hours' | 'questions'>('hours');
-
-  // Calendário simplificado: mês sendo visualizado (YYYY-MM)
   const [calendarMonth, setCalendarMonth] = useState(() => todayISO.slice(0, 7));
   const [selectedDay, setSelectedDay] = useState<string>(todayISO);
 
@@ -80,7 +69,6 @@ export const EvolutionPage: React.FC = () => {
     [subjects, studySessions, questionSessions, todayISO]
   );
 
-  // Série semanal (últimas 8 semanas, seg-dom)
   const weeklySeries = useMemo(() => {
     const [ty, tm, td] = todayISO.split('-').map(Number);
     const dt = new Date(Date.UTC(ty, tm - 1, td));
@@ -89,7 +77,7 @@ export const EvolutionPage: React.FC = () => {
     const currentWeekStart = addDaysISO(todayISO, diffToMonday);
 
     const rows: { label: string; hours: number; questions: number }[] = [];
-    for (let i = 7; i >= 0; i -= 1) {
+    for (let i = 6; i >= 0; i -= 1) {
       const start = addDaysISO(currentWeekStart, -i * 7);
       const end = addDaysISO(start, 6);
       const secs = studySessions
@@ -108,7 +96,6 @@ export const EvolutionPage: React.FC = () => {
     return rows;
   }, [studySessions, questionSessions, todayISO]);
 
-  // Série mensal (últimos 6 meses)
   const monthlySeries = useMemo(() => {
     const [baseYear, baseMonth] = todayISO.slice(0, 7).split('-').map(Number);
     const rows: { label: string; hours: number; questions: number }[] = [];
@@ -130,7 +117,6 @@ export const EvolutionPage: React.FC = () => {
     return rows;
   }, [studySessions, questionSessions, todayISO]);
 
-  // Mapa diário para o calendário simplificado
   const dailyActivityMap = useMemo(() => {
     const map = new Map<string, { seconds: number; questions: number }>();
     for (const s of studySessions) {
@@ -173,65 +159,57 @@ export const EvolutionPage: React.FC = () => {
   const [calYear, calMonthNum] = calendarMonth.split('-').map(Number);
   const selectedDayData = dailyActivityMap.get(selectedDay);
   const activeChartData = chartView === 'weekly' ? weeklySeries : monthlySeries;
+  const maxChartVal = Math.max(
+    ...activeChartData.map((d) => (chartMetric === 'hours' ? d.hours : d.questions)),
+    0
+  );
   const hasAnyData = studySessions.length > 0 || questionSessions.length > 0;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div>
-        <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <h1 className="font-display text-2xl font-bold text-[var(--text-main)] tracking-tight">
           Evolução
         </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Visão consolidada de horas, questões, frequência e pontos de atenção.
+        <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+          Consistência, histórico e pontos de atenção.
         </p>
       </div>
 
-      {/* Métricas consolidadas */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>Total de horas</span>
-            <Clock className="w-4 h-4 text-[#D4A853]" />
-          </div>
-          <p className="mt-2 font-mono-tabular text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+      {/* Grade 2x2 de métricas consolidadas */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)]">Total de horas</p>
+          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--gold-text)]">
             {formatDuration(totalStudySeconds)}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>Questões</span>
-            <HelpCircle className="w-4 h-4 text-[#D4A853]" />
-          </div>
-          <p className="mt-2 font-mono-tabular text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)]">Questões</p>
+          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--text-main)]">
             {questionMetrics.total}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>Acertos / Erros</span>
-            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <p className="mt-2 font-mono-tabular text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)]">Acertos / Erros</p>
+          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--positive)]">
             {questionMetrics.accuracyRate !== null ? `${questionMetrics.accuracyRate.toFixed(0)}%` : '—'}
             {questionMetrics.errorRate !== null && (
-              <span className="ml-1.5 text-xs font-medium text-red-600 dark:text-red-400">
+              <span className="ml-1.5 text-sm font-semibold text-[var(--negative)]">
                 / {questionMetrics.errorRate.toFixed(0)}%
               </span>
             )}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>Frequência</span>
-            <Flame className="w-4 h-4 text-amber-500" />
-          </div>
-          <p className="mt-2 font-mono-tabular text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)]">Frequência</p>
+          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--text-main)]">
             {distinctDays}d
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 font-mono-tabular">
+          <p className="mt-0.5 text-xs text-[var(--text-muted)] font-mono-tabular">
             Sequência: {currentStreak}d
           </p>
         </div>
@@ -241,21 +219,21 @@ export const EvolutionPage: React.FC = () => {
         <EmptyState
           icon={TrendingUp}
           title="Sem histórico para analisar ainda"
-          description="Registre sessões de estudo e baterias de questões para acompanhar sua evolução semanal, mensal e por disciplina."
+          description="Registre sessões de estudo e questões para acompanhar sua evolução."
         />
       ) : (
         <>
-          {/* Gráfico de evolução semanal e mensal */}
-          <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-4">
+          {/* Gráfico simples de evolução semanal / mensal */}
+          <section className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="inline-flex p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800">
+              <div className="inline-flex p-1 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]">
                 <button
                   type="button"
                   onClick={() => setChartView('weekly')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
                     chartView === 'weekly'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500 dark:text-slate-400'
+                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+                      : 'text-[var(--text-muted)]'
                   }`}
                 >
                   Semanal
@@ -263,24 +241,24 @@ export const EvolutionPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setChartView('monthly')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
                     chartView === 'monthly'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500 dark:text-slate-400'
+                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+                      : 'text-[var(--text-muted)]'
                   }`}
                 >
                   Mensal
                 </button>
               </div>
 
-              <div className="inline-flex p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800">
+              <div className="inline-flex p-1 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]">
                 <button
                   type="button"
                   onClick={() => setChartMetric('hours')}
-                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
                     chartMetric === 'hours'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500 dark:text-slate-400'
+                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+                      : 'text-[var(--text-muted)]'
                   }`}
                 >
                   Horas
@@ -288,10 +266,10 @@ export const EvolutionPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setChartMetric('questions')}
-                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
                     chartMetric === 'questions'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500 dark:text-slate-400'
+                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+                      : 'text-[var(--text-muted)]'
                   }`}
                 >
                   Questões
@@ -299,61 +277,69 @@ export const EvolutionPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="h-52 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={activeChartData} margin={{ top: 6, right: 4, left: -24, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.45} />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 11, fill: '#64748B' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: '#64748B' }}
-                    axisLine={false}
-                    tickLine={false}
-                    allowDecimals={chartMetric === 'hours'}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'rgba(212, 168, 83, 0.08)' }}
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: '1px solid #E2E8F0',
-                      fontSize: '12px',
-                    }}
-                    formatter={(value) => {
-                      const num = Number(value ?? 0);
-                      return chartMetric === 'hours'
-                        ? [`${num.toLocaleString('pt-BR')}h`, 'Estudado']
-                        : [`${num}`, 'Questões'];
-                    }}
-                  />
-                  <Bar
-                    dataKey={chartMetric === 'hours' ? 'hours' : 'questions'}
-                    fill={chartMetric === 'hours' ? '#0F172A' : '#D4A853'}
-                    radius={[6, 6, 0, 0]}
-                    maxBarSize={36}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {maxChartVal === 0 ? (
+              <p className="py-8 text-center text-xs text-[var(--text-muted)]">
+                Sem dados para esta métrica neste período.
+              </p>
+            ) : (
+              <div className="h-44 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={activeChartData} margin={{ top: 6, right: 2, left: 2, bottom: 0 }}>
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11, fill: '#94A3B8' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(212, 168, 83, 0.08)' }}
+                      contentStyle={{
+                        backgroundColor: 'var(--bg-card)',
+                        borderColor: 'var(--border-color)',
+                        borderRadius: '12px',
+                        color: 'var(--text-main)',
+                        fontSize: '12px',
+                      }}
+                      formatter={(value) => {
+                        const num = Number(value ?? 0);
+                        return chartMetric === 'hours'
+                          ? [`${num.toLocaleString('pt-BR')}h`, 'Estudado']
+                          : [`${num}`, 'Questões'];
+                      }}
+                    />
+                    <Bar
+                      dataKey={chartMetric === 'hours' ? 'hours' : 'questions'}
+                      radius={[6, 6, 6, 6]}
+                      maxBarSize={36}
+                    >
+                      {activeChartData.map((entry, idx) => {
+                        const v = chartMetric === 'hours' ? entry.hours : entry.questions;
+                        const highlight = v > 0 && (v === maxChartVal || idx === activeChartData.length - 1);
+                        return (
+                          <Cell
+                            key={`${entry.label}-${idx}`}
+                            fill={highlight ? '#D4A853' : '#8C703B'}
+                          />
+                        );
+                      })}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </section>
 
           {/* Calendário simplificado de estudos */}
-          <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-3">
+          <section className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="w-4 h-4 text-[#D4A853]" />
-                <h2 className="font-display text-sm font-bold text-slate-900 dark:text-white">
-                  {MONTH_NAMES[calMonthNum - 1]} {calYear}
-                </h2>
-              </div>
-              <div className="flex items-center gap-1">
+              <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
+                {MONTH_NAMES[calMonthNum - 1]} {calYear}
+              </h2>
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => shiftMonth(-1)}
-                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                  className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
                   aria-label="Mês anterior"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -361,7 +347,7 @@ export const EvolutionPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => shiftMonth(1)}
-                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                  className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
                   aria-label="Próximo mês"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -369,7 +355,7 @@ export const EvolutionPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-slate-400">
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-[var(--text-muted)]">
               {WEEKDAY_HEADERS.map((w, idx) => (
                 <div key={`${w}-${idx}`} className="py-1">
                   {w}
@@ -390,12 +376,12 @@ export const EvolutionPage: React.FC = () => {
                     key={cell.iso}
                     type="button"
                     onClick={() => setSelectedDay(cell.iso)}
-                    className={`min-h-[38px] rounded-xl text-xs font-mono-tabular font-semibold transition-all flex items-center justify-center ${
+                    className={`min-h-[40px] rounded-xl text-xs font-mono-tabular font-semibold transition-all flex items-center justify-center ${
                       studied
-                        ? 'bg-[#D4A853] text-[#0F172A]'
-                        : 'bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400'
-                    } ${isSelected ? 'ring-2 ring-[#0F172A] dark:ring-white' : ''} ${
-                      isToday && !studied ? 'border border-[#D4A853]' : ''
+                        ? 'bg-[var(--gold)] text-[var(--gold-ink)]'
+                        : 'bg-[var(--bg-app)] text-[var(--text-muted)]'
+                    } ${isSelected ? 'ring-2 ring-[var(--text-main)]' : ''} ${
+                      isToday && !studied ? 'border border-[var(--gold)]' : ''
                     }`}
                   >
                     {cell.day}
@@ -404,41 +390,43 @@ export const EvolutionPage: React.FC = () => {
               })}
             </div>
 
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
-              <span className="font-mono-tabular font-medium">{formatDateBR(selectedDay)}</span>
-              <span className="font-mono-tabular">
+            <div className="pt-2.5 border-t border-[var(--border-color)] flex items-center justify-between text-xs">
+              <span className="font-mono-tabular font-medium text-[var(--text-muted)]">
+                {formatDateBR(selectedDay)}
+              </span>
+              <span className="font-mono-tabular text-[var(--text-main)]">
                 {selectedDayData
                   ? `${formatDuration(selectedDayData.seconds)} · ${selectedDayData.questions} questões`
-                  : 'Sem registros neste dia'}
+                  : 'Sem registros'}
               </span>
             </div>
           </section>
 
           {/* Disciplinas que precisam de atenção */}
           {attentionAlerts.length > 0 && (
-            <section className="rounded-2xl border border-amber-300/80 dark:border-amber-800/70 bg-amber-50/50 dark:bg-amber-950/20 p-4 sm:p-5 space-y-3">
+            <section className="rounded-2xl border border-[var(--negative)]/50 bg-[var(--bg-card)] p-4 space-y-2.5">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <h2 className="font-display text-sm font-bold text-slate-900 dark:text-white">
-                  Disciplinas que precisam de atenção
+                <AlertTriangle className="w-4 h-4 text-[var(--negative)] shrink-0" />
+                <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
+                  Precisam de atenção
                 </h2>
               </div>
               <div className="space-y-2">
                 {attentionAlerts.map((alert) => (
                   <div
                     key={alert.subjectId}
-                    className="flex items-center justify-between gap-3 rounded-xl bg-white/90 dark:bg-slate-900/90 px-3.5 py-2.5"
+                    className="flex items-center justify-between gap-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]/60 px-3.5 py-2.5"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
                         className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: alert.color }}
                       />
-                      <span className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                      <span className="text-xs font-semibold text-[var(--text-main)] truncate">
                         {alert.subjectName}
                       </span>
                     </div>
-                    <span className="text-[11px] text-amber-800 dark:text-amber-300 text-right shrink-0">
+                    <span className="text-[11px] font-medium text-[var(--negative)] text-right shrink-0">
                       {alert.reason}
                     </span>
                   </div>
@@ -449,15 +437,15 @@ export const EvolutionPage: React.FC = () => {
 
           {/* Desempenho por disciplina */}
           {subjectBreakdown.length > 0 && (
-            <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-3">
-              <h2 className="font-display text-sm font-bold text-slate-900 dark:text-white">
-                Desempenho por disciplina
+            <section className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4 space-y-2.5">
+              <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
+                Por disciplina
               </h2>
-              <div className="space-y-2.5">
+              <div className="divide-y divide-[var(--border-color)]/60">
                 {subjectBreakdown.map((item) => (
                   <div
                     key={item.subjectId}
-                    className="flex items-center justify-between gap-3 py-2 border-b last:border-b-0 border-slate-100 dark:border-slate-800"
+                    className="flex items-center justify-between gap-3 py-2.5 first:pt-1 last:pb-1"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
@@ -465,15 +453,15 @@ export const EvolutionPage: React.FC = () => {
                         style={{ backgroundColor: item.color }}
                       />
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                        <p className="text-sm font-semibold text-[var(--text-main)] truncate">
                           {item.subjectName}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-mono-tabular">
+                        <p className="text-xs text-[var(--text-muted)] font-mono-tabular">
                           {formatDuration(item.studySeconds)} · {item.questionsTotal} questões
                         </p>
                       </div>
                     </div>
-                    <span className="font-mono-tabular text-sm font-bold text-slate-900 dark:text-white shrink-0">
+                    <span className="font-mono-tabular text-sm font-bold text-[var(--positive)] shrink-0">
                       {item.accuracyRate !== null ? `${item.accuracyRate.toFixed(0)}%` : '—'}
                     </span>
                   </div>

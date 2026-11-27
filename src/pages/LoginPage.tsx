@@ -80,7 +80,7 @@ export const LoginPage: React.FC = () => {
         values.password
       );
       if (needsEmailConfirmation) {
-        setInfoMsg('Conta criada. Verifique sua caixa de entrada para confirmar o e-mail antes de entrar.');
+        setInfoMsg('Conta criada. Confirme seu e-mail antes de entrar.');
         setMode('login');
       }
     } catch (err) {
@@ -96,7 +96,7 @@ export const LoginPage: React.FC = () => {
     setSubmitting(true);
     try {
       await sendPasswordReset(values.email);
-      setInfoMsg('Enviamos um link de redefinição de senha para o seu e-mail.');
+      setInfoMsg('Enviamos um link de redefinição para o seu e-mail.');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Erro ao solicitar recuperação.');
     } finally {
@@ -115,94 +115,84 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#F8FAFC] dark:bg-slate-950">
-      {/* Left Institutional Brand Column */}
-      <div className="lg:w-[44%] bg-[#0F172A] text-white px-5 py-4 lg:p-14 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
-        <div className="flex items-center justify-between">
-          <BrandLogo size="md" onDark />
+    <div className="min-h-dvh flex flex-col bg-[var(--bg-app)] text-[var(--text-main)]">
+      {/* Cabeçalho padronizado idêntico ao app */}
+      <header className="border-b border-[var(--border-color)] bg-[var(--bg-app)] pt-[env(safe-area-inset-top)]">
+        <div className="max-w-4xl mx-auto h-14 px-3.5 sm:px-6 flex items-center justify-between">
+          <BrandLogo size="sm" />
           <button
             type="button"
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            className="min-h-[44px] min-w-[44px] -mr-1.5 inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)]"
             aria-label="Alternar tema"
           >
-            {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {resolvedTheme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
         </div>
+      </header>
 
-        <div className="hidden lg:block my-0 max-w-md">
-          <p className="text-xs font-semibold tracking-widest uppercase text-[#D4A853]">
-            Estratégia. Disciplina. Aprovação.
-          </p>
-          <h1 className="mt-4 font-display text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-balance">
-            Seu estudo organizado com simplicidade até a posse.
-          </h1>
-          <p className="mt-4 text-sm lg:text-base text-slate-300 leading-relaxed">
-            Registre sessões, questões e revisões espaçadas em segundos, com métricas reais e foco no que importa.
-          </p>
-        </div>
+      <main className="flex-1 flex items-center justify-center px-3.5 sm:px-6 py-6">
+        <div className="w-full max-w-md space-y-4">
+          <div className="text-center space-y-1">
+            <p className="text-xs font-semibold tracking-widest uppercase text-[var(--gold-text)]">
+              Estratégia. Disciplina. Aprovação.
+            </p>
+            <h1 className="font-display text-2xl font-bold text-[var(--text-main)]">
+              {mode === 'login' ? 'Acesse sua conta' : mode === 'register' ? 'Criar conta' : 'Recuperar senha'}
+            </h1>
+          </div>
 
-        <p className="hidden lg:block text-xs text-slate-500">
-          Código da Posse · Dados armazenados com isolamento por usuário no PostgreSQL (Supabase).
-        </p>
-      </div>
-
-      {/* Right Auth Form Column */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 lg:p-16">
-        <div className="w-full max-w-md space-y-6">
           {!isSupabaseConfigured && (
-            <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 p-4 space-y-2.5">
+            <div className="rounded-2xl border border-[var(--gold)]/60 bg-[var(--bg-card)] p-4 space-y-3">
               <div className="flex items-start gap-2.5">
-                <Database className="w-4 h-4 text-amber-700 dark:text-amber-400 mt-0.5 shrink-0" />
-                <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-                  <p className="font-semibold">Configuração do Supabase pendente</p>
+                <Database className="w-4 h-4 text-[var(--gold-text)] mt-0.5 shrink-0" />
+                <div className="text-xs text-[var(--text-muted)] leading-relaxed">
+                  <p className="font-semibold text-[var(--text-main)]">Configuração do Supabase pendente</p>
                   <p className="mt-1">
                     Defina <code className="font-mono-tabular">VITE_SUPABASE_URL</code> e{' '}
-                    <code className="font-mono-tabular">VITE_SUPABASE_ANON_KEY</code> (ou{' '}
-                    <code className="font-mono-tabular">VITE_SUPABASE_PUBLISHABLE_KEY</code>) e execute as migrations em{' '}
-                    <code className="font-mono-tabular">supabase/migrations/</code> para ativar a autenticação real.
+                    <code className="font-mono-tabular">VITE_SUPABASE_ANON_KEY</code> para ativar a autenticação real.
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   type="button"
                   onClick={() => enterDemoMode(true)}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F172A] dark:bg-[#D4A853] px-3 py-2 text-xs font-semibold text-white dark:text-[#0F172A] hover:opacity-90 transition-opacity"
+                  className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--gold)] px-3 py-2 text-xs font-semibold text-[var(--gold-ink)]"
                 >
-                  Modo demonstração local (com dados de teste)
+                  Entrar no modo demonstração
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => enterDemoMode(false)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400 dark:border-amber-700 px-3 py-2 text-xs font-medium text-amber-950 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                  className="min-h-[44px] inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 py-2 text-xs font-semibold text-[var(--text-main)]"
                 >
-                  Testar fluxo inicial do zero
+                  Iniciar do zero
                 </button>
               </div>
             </div>
           )}
 
           {sessionExpiredMessage && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800 px-4 py-3 text-xs text-amber-800 dark:text-amber-200 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="rounded-xl border border-[var(--gold)] bg-[var(--bg-card)] px-4 py-3 text-xs text-[var(--text-main)] flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[var(--gold-text)] shrink-0" />
               <span>{sessionExpiredMessage}</span>
             </div>
           )}
 
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-xs">
-            <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg mb-6">
+          <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-5 sm:p-6">
+            <div className="grid grid-cols-3 gap-1 p-1 bg-[var(--bg-app)] border border-[var(--border-color)] rounded-xl mb-5">
               <button
                 type="button"
                 onClick={() => {
                   setMode('login');
                   setErrorMsg(null);
                 }}
-                className={`flex-1 py-2 text-xs font-semibold rounded-md transition-colors ${
+                className={`min-h-[40px] text-xs font-semibold rounded-lg transition-colors ${
                   mode === 'login'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+                    : 'text-[var(--text-muted)]'
                 }`}
               >
                 Entrar
@@ -213,13 +203,13 @@ export const LoginPage: React.FC = () => {
                   setMode('register');
                   setErrorMsg(null);
                 }}
-                className={`flex-1 py-2 text-xs font-semibold rounded-md transition-colors ${
+                className={`min-h-[40px] text-xs font-semibold rounded-lg transition-colors ${
                   mode === 'register'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+                    : 'text-[var(--text-muted)]'
                 }`}
               >
-                Criar conta
+                Cadastro
               </button>
               <button
                 type="button"
@@ -227,10 +217,10 @@ export const LoginPage: React.FC = () => {
                   setMode('reset');
                   setErrorMsg(null);
                 }}
-                className={`flex-1 py-2 text-xs font-semibold rounded-md transition-colors ${
+                className={`min-h-[40px] text-xs font-semibold rounded-lg transition-colors ${
                   mode === 'reset'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
+                    : 'text-[var(--text-muted)]'
                 }`}
               >
                 Recuperar
@@ -238,14 +228,14 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {errorMsg && (
-              <div className="mb-4 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 px-3.5 py-2.5 text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
+              <div className="mb-4 rounded-xl border border-[var(--negative)]/60 bg-[var(--bg-app)] px-3.5 py-2.5 text-xs text-[var(--negative)] flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {infoMsg && (
-              <div className="mb-4 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/50 px-3.5 py-2.5 text-xs text-emerald-700 dark:text-emerald-300 flex items-start gap-2">
+              <div className="mb-4 rounded-xl border border-[var(--positive)]/60 bg-[var(--bg-app)] px-3.5 py-2.5 text-xs text-[var(--positive)] flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{infoMsg}</span>
               </div>
@@ -254,57 +244,57 @@ export const LoginPage: React.FC = () => {
             {mode === 'login' && (
               <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                     E-mail
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Mail className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="email"
                       autoComplete="email"
                       placeholder="seu@email.com"
                       {...loginForm.register('email')}
-                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] pl-10 pr-3.5 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                     />
                   </div>
                   {loginForm.formState.errors.email && (
-                    <p className="mt-1 text-xs text-red-600">{loginForm.formState.errors.email.message}</p>
+                    <p className="mt-1 text-xs text-[var(--negative)]">{loginForm.formState.errors.email.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                     Senha
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Lock className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
                       placeholder="••••••••"
                       {...loginForm.register('password')}
-                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-10 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] pl-10 pr-11 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[38px] min-w-[38px] flex items-center justify-center text-[var(--text-muted)]"
                       aria-label="Mostrar ou ocultar senha"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   {loginForm.formState.errors.password && (
-                    <p className="mt-1 text-xs text-red-600">{loginForm.formState.errors.password.message}</p>
+                    <p className="mt-1 text-xs text-[var(--negative)]">{loginForm.formState.errors.password.message}</p>
                   )}
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting || !isSupabaseConfigured}
-                  className="w-full rounded-lg bg-[#0F172A] dark:bg-[#D4A853] py-2.5 text-sm font-semibold text-white dark:text-[#0F172A] hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] py-2.5 text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 transition-opacity disabled:opacity-50"
                 >
-                  {submitting ? 'Entrando...' : 'Entrar na plataforma'}
+                  {submitting ? 'Entrando...' : 'Entrar'}
                 </button>
               </form>
             )}
@@ -312,120 +302,120 @@ export const LoginPage: React.FC = () => {
             {mode === 'register' && (
               <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                     Nome completo
                   </label>
                   <div className="relative">
-                    <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <User className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       autoComplete="name"
                       placeholder="Seu nome"
                       {...registerForm.register('fullName')}
-                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] pl-10 pr-3.5 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                     />
                   </div>
                   {registerForm.formState.errors.fullName && (
-                    <p className="mt-1 text-xs text-red-600">{registerForm.formState.errors.fullName.message}</p>
+                    <p className="mt-1 text-xs text-[var(--negative)]">{registerForm.formState.errors.fullName.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                     E-mail
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Mail className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="email"
                       autoComplete="email"
                       placeholder="seu@email.com"
                       {...registerForm.register('email')}
-                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] pl-10 pr-3.5 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                     />
                   </div>
                   {registerForm.formState.errors.email && (
-                    <p className="mt-1 text-xs text-red-600">{registerForm.formState.errors.email.message}</p>
+                    <p className="mt-1 text-xs text-[var(--negative)]">{registerForm.formState.errors.email.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                     Senha (mínimo 6 caracteres)
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Lock className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="new-password"
-                      placeholder="Crie uma senha forte"
+                      placeholder="Crie uma senha"
                       {...registerForm.register('password')}
-                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-10 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] pl-10 pr-11 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[38px] min-w-[38px] flex items-center justify-center text-[var(--text-muted)]"
                       aria-label="Mostrar ou ocultar senha"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   {registerForm.formState.errors.password && (
-                    <p className="mt-1 text-xs text-red-600">{registerForm.formState.errors.password.message}</p>
+                    <p className="mt-1 text-xs text-[var(--negative)]">{registerForm.formState.errors.password.message}</p>
                   )}
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting || !isSupabaseConfigured}
-                  className="w-full rounded-lg bg-[#0F172A] dark:bg-[#D4A853] py-2.5 text-sm font-semibold text-white dark:text-[#0F172A] hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] py-2.5 text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 transition-opacity disabled:opacity-50"
                 >
-                  {submitting ? 'Criando conta...' : 'Cadastrar gratuitamente'}
+                  {submitting ? 'Criando conta...' : 'Cadastrar'}
                 </button>
               </form>
             )}
 
             {mode === 'reset' && (
               <form onSubmit={resetForm.handleSubmit(handleReset)} className="space-y-4">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  Informe seu e-mail cadastrado para receber o link seguro de recuperação de senha.
+                <p className="text-xs text-[var(--text-muted)]">
+                  Informe seu e-mail para receber o link de redefinição de senha.
                 </p>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                     E-mail
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Mail className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="email"
                       placeholder="seu@email.com"
                       {...resetForm.register('email')}
-                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] pl-10 pr-3.5 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                     />
                   </div>
                   {resetForm.formState.errors.email && (
-                    <p className="mt-1 text-xs text-red-600">{resetForm.formState.errors.email.message}</p>
+                    <p className="mt-1 text-xs text-[var(--negative)]">{resetForm.formState.errors.email.message}</p>
                   )}
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting || !isSupabaseConfigured}
-                  className="w-full rounded-lg bg-[#0F172A] dark:bg-[#D4A853] py-2.5 text-sm font-semibold text-white dark:text-[#0F172A] hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] py-2.5 text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 transition-opacity disabled:opacity-50"
                 >
-                  {submitting ? 'Enviando...' : 'Enviar link de recuperação'}
+                  {submitting ? 'Enviando...' : 'Enviar link'}
                 </button>
               </form>
             )}
 
             {mode !== 'reset' && (
-              <div className="mt-5 pt-5 border-t border-slate-200 dark:border-slate-800">
+              <div className="mt-5 pt-4 border-t border-[var(--border-color)]">
                 <button
                   type="button"
                   onClick={handleGoogle}
                   disabled={!isSupabaseConfigured}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+                  className="w-full min-h-[46px] flex items-center justify-center gap-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] py-2.5 text-sm font-medium text-[var(--text-main)] disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
                     <path
@@ -451,7 +441,7 @@ export const LoginPage: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

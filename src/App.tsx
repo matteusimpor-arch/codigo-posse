@@ -24,10 +24,10 @@ const ProtectedShell: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (authLoading || (user && dataLoading && !profile)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-slate-950">
-        <div className="text-center space-y-2">
+      <div className="min-h-dvh flex items-center justify-center bg-[var(--bg-app)]">
+        <div className="text-center space-y-2.5">
           <div className="w-8 h-8 rounded-full border-2 border-[#D4A853] border-t-transparent animate-spin mx-auto" />
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-medium text-[var(--text-muted)]">
             Carregando Código da Posse...
           </p>
         </div>
@@ -50,7 +50,7 @@ const ProtectedShell: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return (
     <AppLayout>
       {error && (
-        <div className="mb-4 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 px-4 py-3 text-xs text-red-700 dark:text-red-300">
+        <div className="mb-4 rounded-xl border border-[var(--negative)]/60 bg-[var(--bg-card)] px-4 py-3 text-xs text-[var(--negative)]">
           {error}
         </div>
       )}

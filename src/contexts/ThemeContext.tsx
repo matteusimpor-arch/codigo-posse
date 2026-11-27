@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { ThemePreference } from '../types/database';
 
 interface ThemeContextValue {
@@ -12,16 +12,16 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 const STORAGE_KEY = 'cdp_theme_pref';
 
 function getSystemTheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'dark';
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemePreference>(() => {
-    if (typeof window === 'undefined') return 'system';
+    if (typeof window === 'undefined') return 'dark';
     const saved = window.localStorage.getItem(STORAGE_KEY) as ThemePreference | null;
     if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
-    return 'system';
+    return 'dark';
   });
 
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
@@ -42,14 +42,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       root.classList.remove('dark');
     }
+
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', resolvedTheme === 'dark' ? '#111827' : '#F8FAFC');
+    }
   }, [resolvedTheme]);
 
-  const setTheme = (next: ThemePreference) => {
+  const setTheme = useCallback((next: ThemePreference) => {
     setThemeState(next);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(STORAGE_KEY, next);
     }
-  };
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>

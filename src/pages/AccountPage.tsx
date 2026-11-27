@@ -61,7 +61,6 @@ export const AccountPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
-  // Dados pessoais + Foco/Metas
   const [fullName, setFullName] = useState(profile?.full_name || '');
   const [area, setArea] = useState(primaryGoal?.area || 'Geral');
   const [examName, setExamName] = useState(primaryGoal?.exam_name || '');
@@ -79,7 +78,6 @@ export const AccountPage: React.FC = () => {
   const [mainMsg, setMainMsg] = useState<string | null>(null);
   const [mainError, setMainError] = useState<string | null>(null);
 
-  // Disciplinas
   const [showArchivedSubjects, setShowArchivedSubjects] = useState(false);
   const [subjectModalOpen, setSubjectModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
@@ -90,7 +88,6 @@ export const AccountPage: React.FC = () => {
   const [savingSubj, setSavingSubj] = useState(false);
   const [deleteSubjTarget, setDeleteSubjTarget] = useState<Subject | null>(null);
 
-  // Revisões e fuso
   const [intervalsText, setIntervalsText] = useState(
     (settings?.review_intervals ?? [1, 7, 15, 30]).join(', ')
   );
@@ -99,7 +96,6 @@ export const AccountPage: React.FC = () => {
   const [prefMsg, setPrefMsg] = useState<string | null>(null);
   const [prefError, setPrefError] = useState<string | null>(null);
 
-  // Senha & Exclusão
   const [showPasswordBox, setShowPasswordBox] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -375,23 +371,23 @@ export const AccountPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="space-y-4">
       <div>
-        <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <h1 className="font-display text-2xl font-bold text-[var(--text-main)] tracking-tight">
           Perfil e configurações
         </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Personalize seu foco, metas semanais, disciplinas e aparência.
+        <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+          Dados pessoais, metas, disciplinas e aparência.
         </p>
       </div>
 
-      {/* Dados pessoais + Concurso/Metas */}
+      {/* Dados pessoais + Objetivos e Metas */}
       <form
         onSubmit={handleSaveMain}
-        className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-5"
+        className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-4"
       >
-        <div className="flex items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="w-16 h-16 rounded-2xl bg-[#0F172A] text-[#D4A853] flex items-center justify-center overflow-hidden shrink-0">
+        <div className="flex items-center gap-4 pb-4 border-b border-[var(--border-color)]">
+          <div className="w-16 h-16 rounded-2xl bg-[var(--bg-app)] border border-[var(--border-color)] text-[var(--gold-text)] flex items-center justify-center overflow-hidden shrink-0">
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
@@ -403,14 +399,14 @@ export const AccountPage: React.FC = () => {
             )}
           </div>
           <div className="min-w-0 space-y-1.5">
-            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+            <p className="text-sm font-bold text-[var(--text-main)] truncate">
               {profile?.full_name || 'Estudante'}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+            <p className="text-xs text-[var(--text-muted)] truncate">
               {user?.email}
             </p>
-            <label className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800">
-              <Camera className="w-3.5 h-3.5" />
+            <label className="min-h-[36px] inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] cursor-pointer">
+              <Camera className="w-3.5 h-3.5 text-[var(--gold-text)]" />
               {uploadingAvatar ? 'Enviando...' : 'Alterar foto'}
               <input
                 type="file"
@@ -423,28 +419,28 @@ export const AccountPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
               Nome
             </label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                 Área de interesse
               </label>
               <select
                 value={GOAL_AREAS.includes(area as (typeof GOAL_AREAS)[number]) || area === 'Geral' ? area : 'Outras'}
                 onChange={(e) => setArea(e.target.value)}
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
               >
                 <option value="Geral">Geral (sem área fixa)</option>
                 {GOAL_AREAS.map((a) => (
@@ -456,7 +452,7 @@ export const AccountPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                 Banca examinadora (opcional)
               </label>
               <input
@@ -464,14 +460,14 @@ export const AccountPage: React.FC = () => {
                 value={examBoard}
                 onChange={(e) => setExamBoard(e.target.value)}
                 placeholder="Ex: Cebraspe, FGV"
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                 Concurso pretendido (opcional)
               </label>
               <input
@@ -479,12 +475,12 @@ export const AccountPage: React.FC = () => {
                 value={examName}
                 onChange={(e) => setExamName(e.target.value)}
                 placeholder="Ex: TJ-SP"
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                 Cargo pretendido (opcional)
               </label>
               <input
@@ -492,15 +488,15 @@ export const AccountPage: React.FC = () => {
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
                 placeholder="Ex: Analista"
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Meta semanal (horas)
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                Meta semanal (h)
               </label>
               <input
                 type="number"
@@ -510,13 +506,13 @@ export const AccountPage: React.FC = () => {
                 step="0.5"
                 value={weeklyStudyTarget}
                 onChange={(e) => setWeeklyStudyTarget(e.target.value)}
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-mono-tabular"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Meta semanal (questões)
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                Questões/semana
               </label>
               <input
                 type="number"
@@ -526,15 +522,15 @@ export const AccountPage: React.FC = () => {
                 step={10}
                 value={weeklyQuestionTarget}
                 onChange={(e) => setWeeklyQuestionTarget(e.target.value)}
-                className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-mono-tabular"
+                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
               />
             </div>
           </div>
         </div>
 
-        {mainError && <p className="text-xs font-medium text-red-600">{mainError}</p>}
+        {mainError && <p className="text-xs font-medium text-[var(--negative)]">{mainError}</p>}
         {mainMsg && (
-          <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+          <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--positive)]">
             <CheckCircle2 className="w-4 h-4" />
             {mainMsg}
           </p>
@@ -543,20 +539,20 @@ export const AccountPage: React.FC = () => {
         <button
           type="submit"
           disabled={savingMain}
-          className="w-full min-h-[46px] rounded-xl bg-[#0F172A] dark:bg-[#D4A853] text-sm font-semibold text-white dark:text-[#0F172A] hover:opacity-90 disabled:opacity-60"
+          className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 disabled:opacity-60"
         >
           {savingMain ? 'Salvando...' : 'Salvar dados e metas'}
         </button>
       </form>
 
-      {/* Disciplinas cadastradas */}
-      <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-4">
-        <div className="flex items-center justify-between gap-2">
+      {/* Disciplinas e assuntos */}
+      <section className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className="font-display text-sm font-bold text-slate-900 dark:text-white">
-              Disciplinas cadastradas
+            <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
+              Disciplinas e assuntos
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-[var(--text-muted)]">
               {subjects.filter((s) => !s.archived_at).length} ativa(s)
             </p>
           </div>
@@ -564,14 +560,14 @@ export const AccountPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowArchivedSubjects((v) => !v)}
-              className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              className="min-h-[40px] px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)]"
             >
-              {showArchivedSubjects ? 'Ver ativas' : 'Arquivadas'}
+              {showArchivedSubjects ? 'Ativas' : 'Arquivadas'}
             </button>
             <button
               type="button"
               onClick={openNewSubject}
-              className="min-h-[40px] inline-flex items-center gap-1.5 rounded-xl bg-[#0F172A] dark:bg-[#D4A853] px-3 py-2 text-xs font-semibold text-white dark:text-[#0F172A]"
+              className="min-h-[40px] inline-flex items-center gap-1.5 rounded-xl bg-[var(--gold)] px-3.5 py-2 text-xs font-semibold text-[var(--gold-ink)]"
             >
               <Plus className="w-3.5 h-3.5" />
               Nova
@@ -580,7 +576,7 @@ export const AccountPage: React.FC = () => {
         </div>
 
         {visibleSubjects.length === 0 ? (
-          <p className="text-xs text-slate-500 dark:text-slate-400 py-3 text-center">
+          <p className="text-xs text-[var(--text-muted)] py-3 text-center">
             {showArchivedSubjects
               ? 'Nenhuma disciplina arquivada.'
               : 'Nenhuma disciplina cadastrada ainda.'}
@@ -592,28 +588,28 @@ export const AccountPage: React.FC = () => {
               return (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 dark:border-slate-800 px-3.5 py-2.5"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-color)]/70 bg-[var(--bg-app)] px-3.5 py-2.5"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
-                      className="w-3 h-3 rounded-full shrink-0"
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: s.color }}
                     />
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                      <p className="text-sm font-semibold text-[var(--text-main)] truncate">
                         {s.name}
                       </p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      <p className="text-[11px] text-[var(--text-muted)]">
                         {tCount} {tCount === 1 ? 'assunto' : 'assuntos'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-0.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => openEditSubject(s)}
-                      className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                      className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)]"
                       aria-label="Editar disciplina"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -621,7 +617,7 @@ export const AccountPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => archiveSubject(s.id, !s.archived_at)}
-                      className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                      className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--gold-text)]"
                       title={s.archived_at ? 'Reativar' : 'Arquivar'}
                       aria-label={s.archived_at ? 'Reativar disciplina' : 'Arquivar disciplina'}
                     >
@@ -630,7 +626,7 @@ export const AccountPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setDeleteSubjTarget(s)}
-                      className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
+                      className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--negative)]"
                       aria-label="Excluir disciplina"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -643,18 +639,18 @@ export const AccountPage: React.FC = () => {
         )}
       </section>
 
-      {/* Intervalos de revisão e Fuso */}
+      {/* Intervalos de revisão e fuso */}
       <form
         onSubmit={handleSavePreferences}
-        className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-4"
+        className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-4"
       >
-        <h2 className="font-display text-sm font-bold text-slate-900 dark:text-white">
+        <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
           Intervalos de revisão
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
               Ciclos padrão (dias)
             </label>
             <input
@@ -662,18 +658,18 @@ export const AccountPage: React.FC = () => {
               value={intervalsText}
               onChange={(e) => setIntervalsText(e.target.value)}
               placeholder="1, 7, 15, 30"
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm font-mono-tabular"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
               Fuso horário
             </label>
             <select
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
             >
               {TIMEZONES.map((tz) => (
                 <option key={tz} value={tz}>
@@ -684,9 +680,9 @@ export const AccountPage: React.FC = () => {
           </div>
         </div>
 
-        {prefError && <p className="text-xs font-medium text-red-600">{prefError}</p>}
+        {prefError && <p className="text-xs font-medium text-[var(--negative)]">{prefError}</p>}
         {prefMsg && (
-          <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+          <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--positive)]">
             <CheckCircle2 className="w-4 h-4" />
             {prefMsg}
           </p>
@@ -695,22 +691,22 @@ export const AccountPage: React.FC = () => {
         <button
           type="submit"
           disabled={savingPref}
-          className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
+          className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-sm font-semibold text-[var(--text-main)]"
         >
           {savingPref ? 'Salvando...' : 'Salvar intervalos'}
         </button>
       </form>
 
       {/* Tema e Aplicativo */}
-      <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-4">
-        <h2 className="font-display text-sm font-bold text-slate-900 dark:text-white">
+      <section className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-4">
+        <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
           Aparência e aplicativo
         </h2>
         <div className="grid grid-cols-3 gap-2.5">
           {(
             [
-              ['light', 'Claro', Sun],
               ['dark', 'Escuro', Moon],
+              ['light', 'Claro', Sun],
               ['system', 'Auto', Monitor],
             ] as [ThemePreference, string, React.ComponentType<{ className?: string }>][]
           ).map(([key, label, Icon]) => (
@@ -720,8 +716,8 @@ export const AccountPage: React.FC = () => {
               onClick={() => handleThemeSelect(key)}
               className={`min-h-[56px] flex flex-col items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-colors ${
                 theme === key
-                  ? 'border-[#D4A853] bg-[#0F172A] text-[#E5C478] dark:bg-[#D4A853] dark:text-[#0F172A]'
-                  : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
+                  ? 'border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-ink)]'
+                  : 'border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-main)]'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -736,9 +732,9 @@ export const AccountPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowPasswordBox((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200"
+              className="min-h-[44px] inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-xs font-semibold text-[var(--text-main)]"
             >
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-3.5 h-3.5 text-[var(--gold-text)]" />
               Alterar senha
             </button>
           )}
@@ -747,28 +743,28 @@ export const AccountPage: React.FC = () => {
         {showPasswordBox && !isDemoMode && (
           <form
             onSubmit={handleChangePassword}
-            className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3"
+            className="pt-3 border-t border-[var(--border-color)] space-y-3"
           >
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Nova senha (mín. 6 caracteres)"
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
             />
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirmar nova senha"
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
             />
-            {pwdError && <p className="text-xs text-red-600">{pwdError}</p>}
-            {pwdMsg && <p className="text-xs text-emerald-600">{pwdMsg}</p>}
+            {pwdError && <p className="text-xs text-[var(--negative)]">{pwdError}</p>}
+            {pwdMsg && <p className="text-xs text-[var(--positive)]">{pwdMsg}</p>}
             <button
               type="submit"
               disabled={savingPwd}
-              className="w-full min-h-[44px] rounded-xl bg-[#0F172A] dark:bg-[#D4A853] text-xs font-semibold text-white dark:text-[#0F172A]"
+              className="w-full min-h-[46px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)]"
             >
               {savingPwd ? 'Atualizando...' : 'Atualizar senha'}
             </button>
@@ -777,11 +773,11 @@ export const AccountPage: React.FC = () => {
       </section>
 
       {/* Sair da conta & Excluir conta */}
-      <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 flex flex-col sm:flex-row gap-3">
+      <section className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 flex flex-col sm:flex-row gap-3">
         <button
           type="button"
           onClick={() => signOut()}
-          className="flex-1 min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
+          className="flex-1 min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-sm font-semibold text-[var(--text-main)]"
         >
           <LogOut className="w-4 h-4" />
           Sair da conta
@@ -789,14 +785,14 @@ export const AccountPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setDeleteDialogOpen(true)}
-          className="min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-900/60 px-4 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
+          className="min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--negative)]/50 bg-[var(--bg-app)] px-4 text-sm font-semibold text-[var(--negative)]"
         >
           <Trash2 className="w-4 h-4" />
           Excluir conta
         </button>
       </section>
 
-      {/* Modal Criar / Editar Disciplina e seus Assuntos */}
+      {/* Modal Criar / Editar Disciplina e Assuntos */}
       <Modal
         open={subjectModalOpen}
         onClose={() => setSubjectModalOpen(false)}
@@ -804,7 +800,7 @@ export const AccountPage: React.FC = () => {
       >
         <form onSubmit={handleSaveSubject} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
               Nome da disciplina *
             </label>
             <input
@@ -813,22 +809,22 @@ export const AccountPage: React.FC = () => {
               onChange={(e) => setSubjName(e.target.value)}
               placeholder="Ex: Direito Administrativo"
               required
-              className="w-full min-h-[44px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm"
+              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">
               Cor
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2.5">
               {SUBJECT_COLOR_PALETTE.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setSubjColor(c)}
                   className={`w-8 h-8 rounded-full transition-transform ${
-                    subjColor === c ? 'ring-2 ring-offset-2 ring-[#0F172A] dark:ring-white scale-110' : ''
+                    subjColor === c ? 'ring-2 ring-offset-2 ring-offset-[var(--bg-card)] ring-[#D4A853] scale-110' : ''
                   }`}
                   style={{ backgroundColor: c }}
                   aria-label={`Selecionar cor ${c}`}
@@ -838,8 +834,8 @@ export const AccountPage: React.FC = () => {
           </div>
 
           {editingSubject && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <div className="pt-2 border-t border-[var(--border-color)] space-y-2.5">
+              <label className="block text-xs font-semibold text-[var(--text-muted)]">
                 Assuntos ({editingTopics.length})
               </label>
               <div className="flex gap-2">
@@ -848,28 +844,28 @@ export const AccountPage: React.FC = () => {
                   value={newTopicName}
                   onChange={(e) => setNewTopicName(e.target.value)}
                   placeholder="Novo assunto..."
-                  className="flex-1 min-h-[42px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 text-sm"
+                  className="flex-1 min-w-0 min-h-[44px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 text-base text-[var(--text-main)]"
                 />
                 <button
                   type="button"
                   onClick={handleAddInlineTopic}
-                  className="min-h-[42px] px-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-100"
+                  className="min-h-[44px] px-3.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)]"
                 >
                   Adicionar
                 </button>
               </div>
               {editingTopics.length > 0 && (
-                <div className="max-h-36 overflow-y-auto space-y-1">
+                <div className="max-h-36 overflow-y-auto space-y-1.5">
                   {editingTopics.map((t) => (
                     <div
                       key={t.id}
-                      className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 px-3 py-1.5 text-xs"
+                      className="flex items-center justify-between gap-2 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]/60 px-3 py-2 text-xs text-[var(--text-main)]"
                     >
                       <span className="truncate">{t.name}</span>
                       <button
                         type="button"
                         onClick={() => removeTopic(t.id)}
-                        className="p-1 text-slate-400 hover:text-red-600"
+                        className="min-h-[32px] min-w-[32px] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--negative)]"
                         aria-label={`Remover assunto ${t.name}`}
                       >
                         <X className="w-3.5 h-3.5" />
@@ -881,13 +877,13 @@ export const AccountPage: React.FC = () => {
             </div>
           )}
 
-          {subjError && <p className="text-xs font-medium text-red-600">{subjError}</p>}
+          {subjError && <p className="text-xs font-medium text-[var(--negative)]">{subjError}</p>}
 
-          <div className="sticky bottom-0 pt-2 bg-white dark:bg-slate-900">
+          <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
             <button
               type="submit"
               disabled={savingSubj}
-              className="w-full min-h-[48px] rounded-xl bg-[#0F172A] dark:bg-[#D4A853] text-sm font-semibold text-white dark:text-[#0F172A] disabled:opacity-60"
+              className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] disabled:opacity-60"
             >
               {savingSubj ? 'Salvando...' : 'Salvar disciplina'}
             </button>

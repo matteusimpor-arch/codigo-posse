@@ -116,7 +116,7 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
     <div className="space-y-3">
       {/* Disciplina Picker */}
       <div>
-        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
           Disciplina {requiredSubject ? '*' : ''}
         </label>
         <button
@@ -125,12 +125,12 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
             setSubjectOpen((v) => !v);
             setTopicOpen(false);
           }}
-          className="w-full min-h-[44px] flex items-center justify-between gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+          className="w-full min-h-[46px] flex items-center justify-between gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-left text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
         >
           <span className="flex items-center gap-2.5 min-w-0">
             {selectedSubject && (
               <span
-                className="w-2.5 h-2.5 rounded-xs shrink-0"
+                className="w-2.5 h-2.5 rounded-full shrink-0"
                 style={{ backgroundColor: selectedSubject.color }}
               />
             )}
@@ -138,25 +138,25 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
               {selectedSubject ? selectedSubject.name : 'Selecionar ou criar disciplina'}
             </span>
           </span>
-          <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+          <ChevronDown className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
         </button>
 
         {subjectOpen && (
-          <div className="mt-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 p-2.5 space-y-2 shadow-sm">
+          <div className="mt-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] p-2.5 space-y-2">
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={subjectQuery}
                 onChange={(e) => setSubjectQuery(e.target.value)}
-                placeholder="Buscar ou digitar nova disciplina..."
-                className="w-full min-h-[40px] rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                placeholder="Buscar ou criar disciplina..."
+                className="w-full min-h-[44px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] pl-9 pr-9 py-2 text-base text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
               />
               {subjectQuery && (
                 <button
                   type="button"
                   onClick={() => setSubjectQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 min-h-[32px] min-w-[32px] flex items-center justify-center text-[var(--text-muted)]"
                   aria-label="Limpar busca"
                 >
                   <X className="w-4 h-4" />
@@ -164,7 +164,7 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
               )}
             </div>
 
-            <div className="max-h-44 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80">
+            <div className="max-h-44 overflow-y-auto divide-y divide-[var(--border-color)]/60">
               {filteredSubjects.map((s) => (
                 <button
                   key={s.id}
@@ -175,14 +175,14 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
                     setSubjectOpen(false);
                     setSubjectQuery('');
                   }}
-                  className="w-full min-h-[42px] flex items-center justify-between px-2.5 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg"
+                  className="w-full min-h-[44px] flex items-center justify-between px-2.5 py-2 text-left text-sm hover:bg-[var(--bg-card)] rounded-lg"
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <span
-                      className="w-2.5 h-2.5 rounded-xs shrink-0"
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: s.color }}
                     />
-                    <span className="truncate font-medium text-slate-800 dark:text-slate-100">
+                    <span className="truncate font-medium text-[var(--text-main)]">
                       {s.name}
                     </span>
                   </span>
@@ -190,22 +190,22 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
                 </button>
               ))}
               {filteredSubjects.length === 0 && !subjectQuery.trim() && (
-                <p className="py-3 text-center text-xs text-slate-500">
+                <p className="py-3 text-center text-xs text-[var(--text-muted)]">
                   Digite acima para cadastrar sua primeira disciplina.
                 </p>
               )}
             </div>
 
             {subjectQuery.trim().length >= 2 && !exactSubjectMatch && (
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
-                <div className="flex items-center gap-1.5 px-1">
+              <div className="pt-2 border-t border-[var(--border-color)] space-y-2.5">
+                <div className="flex items-center gap-2 px-1">
                   {SUBJECT_COLOR_PALETTE.slice(0, 6).map((c) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => setNewSubjectColor(c)}
-                      className={`w-5 h-5 rounded-full ${
-                        newSubjectColor === c ? 'ring-2 ring-offset-1 ring-slate-900 dark:ring-white' : ''
+                      className={`w-6 h-6 rounded-full ${
+                        newSubjectColor === c ? 'ring-2 ring-offset-2 ring-offset-[var(--bg-app)] ring-[#D4A853]' : ''
                       }`}
                       style={{ backgroundColor: c }}
                       aria-label={`Cor ${c}`}
@@ -216,10 +216,10 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
                   type="button"
                   onClick={handleCreateSubjectInline}
                   disabled={creatingSubject}
-                  className="w-full min-h-[42px] flex items-center justify-center gap-2 rounded-lg bg-[#0F172A] dark:bg-[#D4A853] px-3 py-2 text-xs font-semibold text-white dark:text-[#0F172A]"
+                  className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-xl bg-[var(--gold)] px-3 py-2 text-sm font-semibold text-[var(--gold-ink)]"
                 >
                   <Plus className="w-4 h-4" />
-                  {creatingSubject ? 'Criando...' : `Criar disciplina "${subjectQuery.trim()}"`}
+                  {creatingSubject ? 'Criando...' : `Criar "${subjectQuery.trim()}"`}
                 </button>
               </div>
             )}
@@ -230,7 +230,7 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
       {/* Assunto Picker */}
       {subjectId && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
             Assunto
           </label>
           <button
@@ -239,30 +239,30 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
               setTopicOpen((v) => !v);
               setSubjectOpen(false);
             }}
-            className="w-full min-h-[44px] flex items-center justify-between gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+            className="w-full min-h-[46px] flex items-center justify-between gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-left text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
           >
             <span className="truncate font-medium">
-              {selectedTopic ? selectedTopic.name : 'Geral da disciplina (ou buscar/criar)'}
+              {selectedTopic ? selectedTopic.name : 'Geral da disciplina'}
             </span>
-            <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+            <ChevronDown className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
           </button>
 
           {topicOpen && (
-            <div className="mt-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 p-2.5 space-y-2 shadow-sm">
+            <div className="mt-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] p-2.5 space-y-2">
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={topicQuery}
                   onChange={(e) => setTopicQuery(e.target.value)}
-                  placeholder="Buscar ou digitar novo assunto..."
-                  className="w-full min-h-[40px] rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                  placeholder="Buscar ou criar assunto..."
+                  className="w-full min-h-[44px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] pl-9 pr-9 py-2 text-base text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
                 />
                 {topicQuery && (
                   <button
                     type="button"
                     onClick={() => setTopicQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 min-h-[32px] min-w-[32px] flex items-center justify-center text-[var(--text-muted)]"
                     aria-label="Limpar busca"
                   >
                     <X className="w-4 h-4" />
@@ -270,7 +270,7 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
                 )}
               </div>
 
-              <div className="max-h-40 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80">
+              <div className="max-h-40 overflow-y-auto divide-y divide-[var(--border-color)]/60">
                 <button
                   type="button"
                   onClick={() => {
@@ -278,7 +278,7 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
                     setTopicOpen(false);
                     setTopicQuery('');
                   }}
-                  className="w-full min-h-[40px] flex items-center justify-between px-2.5 py-2 text-left text-xs font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg"
+                  className="w-full min-h-[44px] flex items-center justify-between px-2.5 py-2 text-left text-sm font-medium text-[var(--text-muted)] hover:bg-[var(--bg-card)] rounded-lg"
                 >
                   <span>Geral da disciplina</span>
                   {!topicId && <Check className="w-4 h-4 text-[#D4A853]" />}
@@ -292,9 +292,9 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
                       setTopicOpen(false);
                       setTopicQuery('');
                     }}
-                    className="w-full min-h-[42px] flex items-center justify-between px-2.5 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg"
+                    className="w-full min-h-[44px] flex items-center justify-between px-2.5 py-2 text-left text-sm hover:bg-[var(--bg-card)] rounded-lg"
                   >
-                    <span className="truncate text-slate-800 dark:text-slate-100">
+                    <span className="truncate text-[var(--text-main)]">
                       {t.parent_topic_id ? `↳ ${t.name}` : t.name}
                     </span>
                     {t.id === topicId && <Check className="w-4 h-4 text-[#D4A853] shrink-0" />}
@@ -307,10 +307,10 @@ export const SearchableSubjectTopicPicker: React.FC<SearchableSubjectTopicPicker
                   type="button"
                   onClick={handleCreateTopicInline}
                   disabled={creatingTopic}
-                  className="w-full min-h-[42px] flex items-center justify-center gap-2 rounded-lg bg-[#0F172A] dark:bg-[#D4A853] px-3 py-2 text-xs font-semibold text-white dark:text-[#0F172A]"
+                  className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-xl bg-[var(--gold)] px-3 py-2 text-sm font-semibold text-[var(--gold-ink)]"
                 >
                   <Plus className="w-4 h-4" />
-                  {creatingTopic ? 'Criando...' : `Criar assunto "${topicQuery.trim()}"`}
+                  {creatingTopic ? 'Criando...' : `Criar "${topicQuery.trim()}"`}
                 </button>
               )}
             </div>

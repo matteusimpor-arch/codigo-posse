@@ -171,7 +171,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       );
       setSettings(data.settings);
-      if (data.settings?.theme) {
+      if (data.settings?.theme === 'light' || data.settings?.theme === 'dark') {
         setTheme(data.settings.theme);
       }
       setGoals(data.goals);
@@ -186,7 +186,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [user, isDemoMode, demoWithSampleData, setTheme]);
+  }, [user?.id, isDemoMode, demoWithSampleData, setTheme]);
 
   useEffect(() => {
     loadData();

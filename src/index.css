@@ -6,15 +6,62 @@
     --font-display: "Manrope", system-ui, -apple-system, sans-serif;
     --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+    /* Tokens — Modo Claro consistente */
+    --bg-app: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --bg-elevated: #F1F5F9;
+    --bg-track: #E2E8F0;
+    --gold: #D4A853;
+    --gold-muted: rgba(212, 168, 83, 0.5);
+    --gold-text: #A87C24;
+    --gold-ink: #111827;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --border-color: #CBD5E1;
+    --positive: #16A34A;
+    --negative: #DC2626;
+  }
+
+  :root.dark {
+    /* Tokens — Padrão Oficial Modo Escuro */
+    --bg-app: #111827;
+    --bg-card: #1C2636;
+    --bg-elevated: #243145;
+    --bg-track: #2B374B;
+    --gold: #D4A853;
+    --gold-muted: #8C703B;
+    --gold-text: #D4A853;
+    --gold-ink: #111827;
+    --text-main: #FFFFFF;
+    --text-muted: #94A3B8;
+    --border-color: #334155;
+    --positive: #22C55E;
+    --negative: #EF4444;
   }
 
   html {
     font-family: var(--font-sans);
     scroll-behavior: smooth;
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
   }
 
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
+  }
+
+  /* Evita zoom automático no iOS Safari em campos de formulário */
+  input, select, textarea {
+    font-size: 16px;
   }
 
   .font-mono-tabular {
@@ -27,7 +74,6 @@
   }
 }
 
-/* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -38,12 +84,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.3);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.5);
+  background: rgba(148, 163, 184, 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {
