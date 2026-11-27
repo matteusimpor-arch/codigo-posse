@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, ChevronDown, ChevronUp, ListChecks } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { STUDY_TYPE_LABELS, type StudyType } from '../types/database';
 import { calculateQuestionMetrics } from '../utils/calculations';
 import { SearchableSubjectTopicPicker } from './SearchableSubjectTopicPicker';
+import { Button } from './ui/Button';
+import { FieldLabel, Input, Select, Textarea } from './ui/Field';
 import { Modal } from './ui/Modal';
+import { SegmentedControl } from './ui/SegmentedControl';
 
 export type QuickTab = 'study' | 'questions';
 
@@ -202,31 +205,17 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
 
   return (
     <Modal open={open} onClose={onClose} title="Registro rápido">
-      <div className="grid grid-cols-2 gap-1 p-1 bg-[var(--bg-app)] border border-[var(--border-color)] rounded-xl mb-4">
-        <button
-          type="button"
-          onClick={() => setTab('study')}
-          className={`min-h-[42px] inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors ${
-            tab === 'study'
-              ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
-              : 'text-[var(--text-muted)]'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          Estudo
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('questions')}
-          className={`min-h-[42px] inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors ${
-            tab === 'questions'
-              ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
-              : 'text-[var(--text-muted)]'
-          }`}
-        >
-          <ListChecks className="w-4 h-4" />
-          Questões
-        </button>
+      <div className="mb-4">
+        <SegmentedControl
+          ariaLabel="Tipo de registro"
+          surface="app"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'study', label: 'Estudo' },
+            { value: 'questions', label: 'Questões' },
+          ]}
+        />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -241,9 +230,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
           <>
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                <label className="text-xs font-semibold text-[var(--text-muted)]">
-                  Tempo estudado *
-                </label>
+                <FieldLabel className="!mb-0">Tempo estudado *</FieldLabel>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {[
                     ['30m', 30],
@@ -255,7 +242,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                       key={String(label)}
                       type="button"
                       onClick={() => setPresetMinutes(Number(mins))}
-                      className="min-h-[32px] px-2.5 rounded-lg bg-[var(--bg-app)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)]"
+                      className="min-h-[32px] px-2.5 rounded-lg bg-[var(--bg-app)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] tabular-nums"
                     >
                       {label}
                     </button>
@@ -264,7 +251,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
-                  <input
+                  <Input
                     type="number"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -272,14 +259,14 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                     max={24}
                     value={hoursStr}
                     onChange={(e) => setHoursStr(e.target.value)}
-                    className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 pr-14 py-2.5 text-base font-mono-tabular text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                    className="!pr-14 tabular-nums"
                   />
                   <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--text-muted)]">
                     horas
                   </span>
                 </div>
                 <div className="relative">
-                  <input
+                  <Input
                     type="number"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -287,7 +274,7 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                     max={59}
                     value={minutesStr}
                     onChange={(e) => setMinutesStr(e.target.value)}
-                    className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 pr-12 py-2.5 text-base font-mono-tabular text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                    className="!pr-12 tabular-nums"
                   />
                   <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[var(--text-muted)]">
                     min
@@ -297,19 +284,17 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Data
-              </label>
-              <input
+              <FieldLabel htmlFor="quick-study-date">Data</FieldLabel>
+              <Input
+                id="quick-study-date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
               />
             </div>
 
-            <label className="flex items-center gap-2.5 text-xs font-medium text-[var(--text-main)] cursor-pointer py-1 min-h-[40px]">
+            <label className="flex items-center gap-2.5 text-xs font-medium text-[var(--text-main)] cursor-pointer py-1 min-h-[40px] tabular-nums">
               <input
                 type="checkbox"
                 checked={scheduleReviews}
@@ -325,38 +310,38 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                 onClick={() => setShowStudyOptional((v) => !v)}
                 className="min-h-[40px] inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)]"
               >
-                {showStudyOptional ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showStudyOptional ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
                 Modalidade e observações (opcional)
               </button>
 
               {showStudyOptional && (
                 <div className="mt-2.5 space-y-3 pt-3 border-t border-[var(--border-color)]">
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                      Modalidade
-                    </label>
-                    <select
+                    <FieldLabel htmlFor="quick-study-type">Modalidade</FieldLabel>
+                    <Select
+                      id="quick-study-type"
                       value={studyType}
                       onChange={(e) => setStudyType(e.target.value as StudyType)}
-                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
                     >
                       {(Object.keys(STUDY_TYPE_LABELS) as StudyType[]).map((k) => (
                         <option key={k} value={k}>
                           {STUDY_TYPE_LABELS[k]}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                      Observações
-                    </label>
-                    <textarea
+                    <FieldLabel htmlFor="quick-study-notes">Observações</FieldLabel>
+                    <Textarea
+                      id="quick-study-notes"
                       rows={2}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Anotações curtas..."
-                      className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
                     />
                   </div>
                 </div>
@@ -367,10 +352,9 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
           <>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                  Acertos *
-                </label>
-                <input
+                <FieldLabel htmlFor="quick-correct">Acertos *</FieldLabel>
+                <Input
+                  id="quick-correct"
                   type="number"
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -379,14 +363,13 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                   value={correctStr}
                   onChange={(e) => setCorrectStr(e.target.value)}
                   required
-                  className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-[var(--positive)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                  className="tabular-nums font-semibold !text-[var(--positive)]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                  Erros *
-                </label>
-                <input
+                <FieldLabel htmlFor="quick-incorrect">Erros *</FieldLabel>
+                <Input
+                  id="quick-incorrect"
                   type="number"
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -395,26 +378,24 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                   value={incorrectStr}
                   onChange={(e) => setIncorrectStr(e.target.value)}
                   required
-                  className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-[var(--negative)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                  className="tabular-nums font-semibold !text-[var(--negative)]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Data
-              </label>
-              <input
+              <FieldLabel htmlFor="quick-q-date">Data</FieldLabel>
+              <Input
+                id="quick-q-date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
               />
             </div>
 
             {qPreview.total > 0 && (
-              <div className="flex items-center justify-between rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] px-3.5 py-2.5 text-xs font-mono-tabular">
+              <div className="flex items-center justify-between rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] px-3.5 py-2.5 text-xs tabular-nums">
                 <span>
                   Total: <strong>{qPreview.total}</strong>
                 </span>
@@ -430,7 +411,11 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                 onClick={() => setShowQuestionOptional((v) => !v)}
                 className="min-h-[40px] inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)]"
               >
-                {showQuestionOptional ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showQuestionOptional ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
                 Em branco, banca e observações (opcional)
               </button>
 
@@ -438,41 +423,36 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
                 <div className="mt-2.5 space-y-3 pt-3 border-t border-[var(--border-color)]">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                        Em branco
-                      </label>
-                      <input
+                      <FieldLabel htmlFor="quick-blank">Em branco</FieldLabel>
+                      <Input
+                        id="quick-blank"
                         type="number"
                         inputMode="numeric"
                         pattern="[0-9]*"
                         min={0}
                         value={blankStr}
                         onChange={(e) => setBlankStr(e.target.value)}
-                        className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
+                        className="tabular-nums"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                        Banca
-                      </label>
-                      <input
+                      <FieldLabel htmlFor="quick-board">Banca</FieldLabel>
+                      <Input
+                        id="quick-board"
                         type="text"
                         value={examBoard}
                         onChange={(e) => setExamBoard(e.target.value)}
                         placeholder="Ex: Cebraspe"
-                        className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                      Observações
-                    </label>
-                    <textarea
+                    <FieldLabel htmlFor="quick-q-notes">Observações</FieldLabel>
+                    <Textarea
+                      id="quick-q-notes"
                       rows={2}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
                     />
                   </div>
                 </div>
@@ -495,13 +475,9 @@ export const QuickRegisterModal: React.FC<QuickRegisterModalProps> = ({
         )}
 
         <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 transition-opacity disabled:opacity-60"
-          >
+          <Button type="submit" fullWidth disabled={saving}>
             {saving ? 'Salvando...' : 'Salvar registro'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

@@ -3,9 +3,9 @@
 
 @layer base {
   :root {
-    --font-display: "Manrope", system-ui, -apple-system, sans-serif;
-    --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    --font-display: "Inter", system-ui, -apple-system, sans-serif;
+    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono: "Inter", system-ui, -apple-system, sans-serif;
 
     /* Tokens — Modo Claro consistente */
     --bg-app: #F8FAFC;
@@ -13,7 +13,7 @@
     --bg-elevated: #F1F5F9;
     --bg-track: #E2E8F0;
     --gold: #D4A853;
-    --gold-muted: rgba(212, 168, 83, 0.5);
+    --gold-muted: #C29A4B;
     --gold-text: #A87C24;
     --gold-ink: #111827;
     --text-main: #0F172A;
@@ -49,6 +49,7 @@
   }
 
   body {
+    font-family: var(--font-sans);
     background-color: var(--bg-app);
     color: var(--text-main);
     overflow-x: hidden;
@@ -64,12 +65,9 @@
     font-size: 16px;
   }
 
-  .font-mono-tabular {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-  }
-
+  .font-mono-tabular,
   .tabular-nums {
+    font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
   }
 }

@@ -1,9 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarCheck2, CalendarClock, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { SearchableSubjectTopicPicker } from '../components/SearchableSubjectTopicPicker';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { EmptyState } from '../components/ui/EmptyState';
+import { FieldLabel, Input, Textarea } from '../components/ui/Field';
 import { Modal } from '../components/ui/Modal';
+import { PageHeader } from '../components/ui/PageHeader';
+import { SegmentedControl } from '../components/ui/SegmentedControl';
 import { useData } from '../contexts/DataContext';
 import { type ComprehensionLevel, type Review } from '../types/database';
 import { resolveReviewStatus } from '../utils/calculations';
@@ -189,73 +194,31 @@ export const ReviewsPage: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-[var(--text-main)] tracking-tight">
-          Revisões
-        </h1>
-        <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-          {overdueCount > 0
+      <PageHeader
+        title="Revisões"
+        subtitle={
+          overdueCount > 0
             ? `${overdueCount} atrasada${overdueCount > 1 ? 's' : ''} na fila de hoje.`
-            : 'Ciclos automáticos de 1, 7, 15 e 30 dias.'}
-        </p>
-      </div>
+            : 'Ciclos automáticos de 1, 7, 15 e 30 dias.'
+        }
+        rightSlot={
+          <Button type="button" onClick={openCreate} className="w-full sm:w-auto min-h-[46px]">
+            <Plus className="w-4 h-4" />
+            Programar revisão
+          </Button>
+        }
+      />
 
-      {/* Botão principal */}
-      <button
-        type="button"
-        onClick={openCreate}
-        className="w-full min-h-[50px] rounded-xl bg-[var(--gold)] px-5 py-3 text-base font-semibold text-[var(--gold-ink)] flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.99] transition-all"
-      >
-        <Plus className="w-5 h-5" />
-        Programar revisão
-      </button>
-
-      {/* 3 Categorias: Hoje, Próximas, Concluídas */}
-      <div
-        className="grid grid-cols-3 p-1 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]"
-        role="tablist"
-        aria-label="Categorias de revisão"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'today'}
-          onClick={() => setTab('today')}
-          className={`min-h-[42px] px-1 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap truncate transition-colors ${
-            tab === 'today'
-              ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
-              : 'text-[var(--text-muted)]'
-          }`}
-        >
-          Hoje ({todayList.length})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'upcoming'}
-          onClick={() => setTab('upcoming')}
-          className={`min-h-[42px] px-1 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap truncate transition-colors ${
-            tab === 'upcoming'
-              ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
-              : 'text-[var(--text-muted)]'
-          }`}
-        >
-          Próximas ({upcomingList.length})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'done'}
-          onClick={() => setTab('done')}
-          className={`min-h-[42px] px-1 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap truncate transition-colors ${
-            tab === 'done'
-              ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
-              : 'text-[var(--text-muted)]'
-          }`}
-        >
-          Concluídas ({doneList.length})
-        </button>
-      </div>
+      <SegmentedControl
+        options={[
+          { value: 'today', label: `Hoje (${todayList.length})` },
+          { value: 'upcoming', label: `Próximas (${upcomingList.length})` },
+          { value: 'done', label: `Concluídas (${doneList.length})` },
+        ]}
+        value={tab}
+        onChange={setTab}
+        ariaLabel="Categorias de revisão"
+      />
 
       {currentList.length === 0 ? (
         <EmptyState
@@ -268,7 +231,7 @@ export const ReviewsPage: React.FC = () => {
           }
         />
       ) : (
-        <div className="space-y-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {currentList.map((r) => {
             const subj = subjectMap.get(r.subject_id);
             const top = r.topic_id ? topicMap.get(r.topic_id) : null;
@@ -276,10 +239,10 @@ export const ReviewsPage: React.FC = () => {
             const daysLate = isOverdue ? diffDaysISO(todayISO, r.scheduled_date) : 0;
 
             return (
-              <div
+              <Card
                 key={r.id}
-                className={`rounded-2xl border bg-[var(--bg-card)] p-4 space-y-3 ${
-                  isOverdue ? 'border-[var(--negative)]/70' : 'border-[var(--border-color)]/70'
+                className={`space-y-3 ${
+                  isOverdue ? 'border-[var(--negative)]/70' : ''
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -320,7 +283,7 @@ export const ReviewsPage: React.FC = () => {
                         <p className="text-xs text-[var(--text-muted)]">{top.name}</p>
                       )}
                       {r.status === 'realizada' && r.duration_seconds && (
-                        <p className="mt-1 text-xs text-[var(--text-muted)] font-mono-tabular">
+                        <p className="mt-1 text-xs text-[var(--text-muted)] tabular-nums">
                           {formatDuration(r.duration_seconds)}
                         </p>
                       )}
@@ -342,25 +305,26 @@ export const ReviewsPage: React.FC = () => {
 
                 {r.status !== 'realizada' && (
                   <div className="flex items-center gap-2 pt-0.5">
-                    <button
+                    <Button
                       type="button"
+                      className="flex-1 min-h-[44px] text-xs sm:text-sm px-3"
                       onClick={() => openComplete(r)}
-                      className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--gold)] px-3 py-2 text-xs sm:text-sm font-semibold text-[var(--gold-ink)]"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       Concluir
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="secondary"
+                      className="flex-1 min-h-[44px] text-xs sm:text-sm px-3"
                       onClick={() => openReschedule(r)}
-                      className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 py-2 text-xs sm:text-sm font-semibold text-[var(--text-main)]"
                     >
                       <CalendarClock className="w-4 h-4" />
                       Reagendar
-                    </button>
+                    </Button>
                   </div>
                 )}
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -382,9 +346,7 @@ export const ReviewsPage: React.FC = () => {
 
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-              <label className="text-xs font-semibold text-[var(--text-muted)]">
-                Data programada *
-              </label>
+              <FieldLabel className="mb-0">Data programada *</FieldLabel>
               <div className="flex flex-wrap items-center gap-1.5">
                 {[
                   ['Hoje', 0],
@@ -403,37 +365,29 @@ export const ReviewsPage: React.FC = () => {
                 ))}
               </div>
             </div>
-            <input
+            <Input
               type="date"
               value={scheduledDate}
               onChange={(e) => setScheduledDate(e.target.value)}
               required
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Observações (opcional)
-            </label>
-            <textarea
+            <FieldLabel>Observações (opcional)</FieldLabel>
+            <Textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
             />
           </div>
 
           {errorMsg && <p className="text-xs font-medium text-[var(--negative)]">{errorMsg}</p>}
 
           <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] disabled:opacity-60"
-            >
+            <Button type="submit" fullWidth disabled={saving} className="min-h-[48px]">
               {saving ? 'Salvando...' : editing ? 'Salvar nova data' : 'Programar revisão'}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>
@@ -447,9 +401,7 @@ export const ReviewsPage: React.FC = () => {
         <form onSubmit={handleComplete} className="space-y-4">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-              <label className="text-xs font-semibold text-[var(--text-muted)]">
-                Tempo gasto (min)
-              </label>
+              <FieldLabel className="mb-0">Tempo gasto (min)</FieldLabel>
               <div className="flex items-center gap-1.5">
                 {['15', '25', '40'].map((m) => (
                   <button
@@ -463,7 +415,7 @@ export const ReviewsPage: React.FC = () => {
                 ))}
               </div>
             </div>
-            <input
+            <Input
               type="number"
               inputMode="numeric"
               pattern="[0-9]*"
@@ -471,14 +423,12 @@ export const ReviewsPage: React.FC = () => {
               max={600}
               value={durationStr}
               onChange={(e) => setDurationStr(e.target.value)}
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular text-[var(--text-main)]"
+              className="tabular-nums"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Como foi o domínio?
-            </label>
+            <FieldLabel>Como foi o domínio?</FieldLabel>
             <div className="grid grid-cols-3 gap-2">
               {COMPREHENSION_CHIPS.map((chip) => (
                 <button
@@ -508,25 +458,18 @@ export const ReviewsPage: React.FC = () => {
           </label>
 
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Observações (opcional)
-            </label>
-            <textarea
+            <FieldLabel>Observações (opcional)</FieldLabel>
+            <Textarea
               rows={2}
               value={completeNotes}
               onChange={(e) => setCompleteNotes(e.target.value)}
-              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
             />
           </div>
 
           <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] disabled:opacity-60"
-            >
+            <Button type="submit" fullWidth disabled={saving} className="min-h-[48px]">
               {saving ? 'Concluindo...' : 'Concluir revisão'}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_profiles_updated_at ON public.profiles;
 CREATE TRIGGER trg_profiles_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_user_settings_updated_at ON public.user_settings;
 CREATE TRIGGER trg_user_settings_updated_at
   BEFORE UPDATE ON public.user_settings
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -86,6 +88,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_goals_one_primary_per_user
 CREATE INDEX IF NOT EXISTS idx_goals_user_id ON public.goals (user_id);
 CREATE INDEX IF NOT EXISTS idx_goals_exam_date ON public.goals (exam_date);
 
+DROP TRIGGER IF EXISTS trg_goals_updated_at ON public.goals;
 CREATE TRIGGER trg_goals_updated_at
   BEFORE UPDATE ON public.goals
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -109,6 +112,7 @@ CREATE TABLE IF NOT EXISTS public.subjects (
 
 CREATE INDEX IF NOT EXISTS idx_subjects_user_id ON public.subjects (user_id);
 
+DROP TRIGGER IF EXISTS trg_subjects_updated_at ON public.subjects;
 CREATE TRIGGER trg_subjects_updated_at
   BEFORE UPDATE ON public.subjects
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -132,6 +136,7 @@ CREATE TABLE IF NOT EXISTS public.goal_subjects (
 
 CREATE INDEX IF NOT EXISTS idx_goal_subjects_user_goal ON public.goal_subjects (user_id, goal_id);
 
+DROP TRIGGER IF EXISTS trg_goal_subjects_updated_at ON public.goal_subjects;
 CREATE TRIGGER trg_goal_subjects_updated_at
   BEFORE UPDATE ON public.goal_subjects
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -156,6 +161,7 @@ CREATE TABLE IF NOT EXISTS public.topics (
 
 CREATE INDEX IF NOT EXISTS idx_topics_user_subject ON public.topics (user_id, subject_id);
 
+DROP TRIGGER IF EXISTS trg_topics_updated_at ON public.topics;
 CREATE TRIGGER trg_topics_updated_at
   BEFORE UPDATE ON public.topics
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -178,15 +184,16 @@ CREATE TABLE IF NOT EXISTS public.study_sessions (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (id, user_id),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL,
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id),
   FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE RESTRICT,
-  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL
+  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL (topic_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_study_sessions_user_date ON public.study_sessions (user_id, study_date DESC);
 CREATE INDEX IF NOT EXISTS idx_study_sessions_subject ON public.study_sessions (subject_id);
 CREATE INDEX IF NOT EXISTS idx_study_sessions_goal ON public.study_sessions (goal_id);
 
+DROP TRIGGER IF EXISTS trg_study_sessions_updated_at ON public.study_sessions;
 CREATE TRIGGER trg_study_sessions_updated_at
   BEFORE UPDATE ON public.study_sessions
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -209,11 +216,12 @@ CREATE TABLE IF NOT EXISTS public.mock_exams (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (id, user_id),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_mock_exams_user_date ON public.mock_exams (user_id, exam_date DESC);
 
+DROP TRIGGER IF EXISTS trg_mock_exams_updated_at ON public.mock_exams;
 CREATE TRIGGER trg_mock_exams_updated_at
   BEFORE UPDATE ON public.mock_exams
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -234,6 +242,7 @@ CREATE TABLE IF NOT EXISTS public.mock_exam_results (
   FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE RESTRICT
 );
 
+DROP TRIGGER IF EXISTS trg_mock_exam_results_updated_at ON public.mock_exam_results;
 CREATE TRIGGER trg_mock_exam_results_updated_at
   BEFORE UPDATE ON public.mock_exam_results
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -262,10 +271,10 @@ CREATE TABLE IF NOT EXISTS public.question_sessions (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CHECK ((correct_answers + incorrect_answers + blank_answers) > 0),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL,
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id),
   FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE RESTRICT,
-  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL,
-  FOREIGN KEY (study_session_id, user_id) REFERENCES public.study_sessions(id, user_id) ON DELETE SET NULL,
+  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL (topic_id),
+  FOREIGN KEY (study_session_id, user_id) REFERENCES public.study_sessions(id, user_id) ON DELETE SET NULL (study_session_id),
   FOREIGN KEY (mock_exam_id, user_id) REFERENCES public.mock_exams(id, user_id) ON DELETE CASCADE
 );
 
@@ -273,6 +282,7 @@ CREATE INDEX IF NOT EXISTS idx_question_sessions_user_date ON public.question_se
 CREATE INDEX IF NOT EXISTS idx_question_sessions_subject ON public.question_sessions (subject_id);
 CREATE INDEX IF NOT EXISTS idx_question_sessions_goal ON public.question_sessions (goal_id);
 
+DROP TRIGGER IF EXISTS trg_question_sessions_updated_at ON public.question_sessions;
 CREATE TRIGGER trg_question_sessions_updated_at
   BEFORE UPDATE ON public.question_sessions
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -298,11 +308,11 @@ CREATE TABLE IF NOT EXISTS public.reviews (
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL,
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id),
   FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE RESTRICT,
-  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL,
-  FOREIGN KEY (source_study_session_id, user_id) REFERENCES public.study_sessions(id, user_id) ON DELETE SET NULL,
-  FOREIGN KEY (completed_study_session_id, user_id) REFERENCES public.study_sessions(id, user_id) ON DELETE SET NULL
+  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL (topic_id),
+  FOREIGN KEY (source_study_session_id, user_id) REFERENCES public.study_sessions(id, user_id) ON DELETE SET NULL (source_study_session_id),
+  FOREIGN KEY (completed_study_session_id, user_id) REFERENCES public.study_sessions(id, user_id) ON DELETE SET NULL (completed_study_session_id)
 );
 
 -- Evita revisões duplicadas para a mesma sessão original e mesmo intervalo
@@ -313,6 +323,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_no_duplicate_interval
 CREATE INDEX IF NOT EXISTS idx_reviews_user_scheduled ON public.reviews (user_id, scheduled_date);
 CREATE INDEX IF NOT EXISTS idx_reviews_subject ON public.reviews (subject_id);
 
+DROP TRIGGER IF EXISTS trg_reviews_updated_at ON public.reviews;
 CREATE TRIGGER trg_reviews_updated_at
   BEFORE UPDATE ON public.reviews
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -339,6 +350,7 @@ CREATE TABLE IF NOT EXISTS public.syllabus_items (
   FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE CASCADE
 );
 
+DROP TRIGGER IF EXISTS trg_syllabus_items_updated_at ON public.syllabus_items;
 CREATE TRIGGER trg_syllabus_items_updated_at
   BEFORE UPDATE ON public.syllabus_items
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -358,11 +370,12 @@ CREATE TABLE IF NOT EXISTS public.study_plans (
   status TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'concluido', 'cancelado')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL,
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id),
   FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE CASCADE,
-  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL
+  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL (topic_id)
 );
 
+DROP TRIGGER IF EXISTS trg_study_plans_updated_at ON public.study_plans;
 CREATE TRIGGER trg_study_plans_updated_at
   BEFORE UPDATE ON public.study_plans
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -379,10 +392,11 @@ CREATE TABLE IF NOT EXISTS public.study_targets (
   end_date DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL,
-  FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE SET NULL
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id),
+  FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE SET NULL (subject_id)
 );
 
+DROP TRIGGER IF EXISTS trg_study_targets_updated_at ON public.study_targets;
 CREATE TRIGGER trg_study_targets_updated_at
   BEFORE UPDATE ON public.study_targets
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -405,11 +419,12 @@ CREATE TABLE IF NOT EXISTS public.error_notebook (
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL,
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id),
   FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE RESTRICT,
-  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL
+  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL (topic_id)
 );
 
+DROP TRIGGER IF EXISTS trg_error_notebook_updated_at ON public.error_notebook;
 CREATE TRIGGER trg_error_notebook_updated_at
   BEFORE UPDATE ON public.error_notebook
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -427,9 +442,9 @@ CREATE TABLE IF NOT EXISTS public.active_timers (
   status TEXT NOT NULL DEFAULT 'running' CHECK (status IN ('running', 'paused', 'finished', 'cancelled')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL,
+  FOREIGN KEY (goal_id, user_id) REFERENCES public.goals(id, user_id) ON DELETE SET NULL (goal_id),
   FOREIGN KEY (subject_id, user_id) REFERENCES public.subjects(id, user_id) ON DELETE CASCADE,
-  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL
+  FOREIGN KEY (topic_id, user_id) REFERENCES public.topics(id, user_id) ON DELETE SET NULL (topic_id)
 );
 
 -- Impede cronômetros simultâneos ativos do mesmo usuário
@@ -437,6 +452,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_active_timers_one_active_per_user
   ON public.active_timers (user_id)
   WHERE status IN ('running', 'paused');
 
+DROP TRIGGER IF EXISTS trg_active_timers_updated_at ON public.active_timers;
 CREATE TRIGGER trg_active_timers_updated_at
   BEFORE UPDATE ON public.active_timers
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -453,3 +469,24 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 );
 
 CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON public.notifications (user_id, created_at DESC);
+
+-- ----------------------------------------------------------------------------
+-- 12. HABILITAR ROW LEVEL SECURITY (RLS) EM TODAS AS TABELAS
+-- ----------------------------------------------------------------------------
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.goal_subjects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.topics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.study_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mock_exams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mock_exam_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.question_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.syllabus_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.study_plans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.study_targets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.error_notebook ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.active_timers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;

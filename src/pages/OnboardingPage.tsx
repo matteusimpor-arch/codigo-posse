@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { FieldLabel, Input, Select } from '../components/ui/Field';
 import { useData } from '../contexts/DataContext';
 import { GOAL_AREAS } from '../types/database';
 
@@ -70,14 +73,14 @@ export const OnboardingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col justify-center py-6 px-3.5 sm:px-6">
-      <div className="max-w-md w-full mx-auto space-y-5">
+    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col justify-center py-8 px-6">
+      <div className="max-w-[420px] w-full mx-auto space-y-5">
         <div className="flex items-center justify-center">
           <BrandLogo size="md" />
         </div>
 
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-5 sm:p-6">
-          <h1 className="font-display text-xl font-bold text-[var(--text-main)]">
+        <Card padding="lg">
+          <h1 className="text-xl font-bold text-[var(--text-main)] tracking-tight">
             Configuração inicial
           </h1>
           <p className="mt-1 text-sm text-[var(--text-muted)]">
@@ -86,56 +89,45 @@ export const OnboardingPage: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="mt-5 space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Seu nome *
-              </label>
-              <input
+              <FieldLabel htmlFor="onb-name">Seu nome *</FieldLabel>
+              <Input
+                id="onb-name"
                 type="text"
                 placeholder="Ex: Mariana Silva"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Área de interesse (opcional)
-              </label>
-              <select
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-              >
+              <FieldLabel htmlFor="onb-area">Área de interesse (opcional)</FieldLabel>
+              <Select id="onb-area" value={area} onChange={(e) => setArea(e.target.value)}>
                 <option value="Geral">Ainda não defini / Geral</option>
                 {GOAL_AREAS.map((a) => (
                   <option key={a} value={a}>
                     {a}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Concurso pretendido (opcional)
-              </label>
-              <input
+              <FieldLabel htmlFor="onb-exam">Concurso pretendido (opcional)</FieldLabel>
+              <Input
+                id="onb-exam"
                 type="text"
                 placeholder="Ex: TJ-SP, Polícia Federal"
                 value={examName}
                 onChange={(e) => setExamName(e.target.value)}
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                  Meta semanal (h)
-                </label>
-                <input
+                <FieldLabel htmlFor="onb-hours">Meta semanal (h)</FieldLabel>
+                <Input
+                  id="onb-hours"
                   type="number"
                   inputMode="decimal"
                   min={0}
@@ -143,14 +135,13 @@ export const OnboardingPage: React.FC = () => {
                   step="0.5"
                   value={weeklyStudyTarget}
                   onChange={(e) => setWeeklyStudyTarget(e.target.value)}
-                  className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
+                  className="tabular-nums"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                  Questões/semana
-                </label>
-                <input
+                <FieldLabel htmlFor="onb-questions">Questões/semana</FieldLabel>
+                <Input
+                  id="onb-questions"
                   type="number"
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -158,7 +149,7 @@ export const OnboardingPage: React.FC = () => {
                   step={10}
                   value={weeklyQuestionTarget}
                   onChange={(e) => setWeeklyQuestionTarget(e.target.value)}
-                  className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
+                  className="tabular-nums"
                 />
               </div>
             </div>
@@ -170,26 +161,24 @@ export const OnboardingPage: React.FC = () => {
             )}
 
             <div className="pt-2 space-y-2.5">
-              <button
-                type="submit"
-                disabled={saving}
-                className="w-full min-h-[48px] inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 disabled:opacity-60"
-              >
+              <Button type="submit" fullWidth disabled={saving}>
                 {saving ? 'Salvando...' : 'Começar agora'}
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                fullWidth
                 onClick={handleSkip}
                 disabled={saving}
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                className="!text-xs !text-[var(--text-muted)]"
               >
                 Pular e começar a estudar
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
+        </Card>
       </div>
     </div>
   );

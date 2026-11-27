@@ -16,8 +16,12 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PWAInstallButton } from '../components/pwa/PWAInstallButton';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { FieldLabel, Input, Select } from '../components/ui/Field';
 import { Modal } from '../components/ui/Modal';
+import { PageHeader } from '../components/ui/PageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -371,426 +375,395 @@ export const AccountPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-[var(--text-main)] tracking-tight">
-          Perfil e configurações
-        </h1>
-        <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-          Dados pessoais, metas, disciplinas e aparência.
-        </p>
-      </div>
+    <div className="space-y-4 sm:space-y-5">
+      <PageHeader
+        title="Perfil e configurações"
+        subtitle="Dados pessoais, metas, disciplinas e aparência."
+      />
 
-      {/* Dados pessoais + Objetivos e Metas */}
-      <form
-        onSubmit={handleSaveMain}
-        className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-4"
-      >
-        <div className="flex items-center gap-4 pb-4 border-b border-[var(--border-color)]">
-          <div className="w-16 h-16 rounded-2xl bg-[var(--bg-app)] border border-[var(--border-color)] text-[var(--gold-text)] flex items-center justify-center overflow-hidden shrink-0">
-            {profile?.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                alt={profile.full_name || 'Perfil'}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <User className="w-7 h-7" />
-            )}
-          </div>
-          <div className="min-w-0 space-y-1.5">
-            <p className="text-sm font-bold text-[var(--text-main)] truncate">
-              {profile?.full_name || 'Estudante'}
-            </p>
-            <p className="text-xs text-[var(--text-muted)] truncate">
-              {user?.email}
-            </p>
-            <label className="min-h-[36px] inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] cursor-pointer">
-              <Camera className="w-3.5 h-3.5 text-[var(--gold-text)]" />
-              {uploadingAvatar ? 'Enviando...' : 'Alterar foto'}
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={handleAvatarChange}
-                disabled={uploadingAvatar}
-                className="sr-only"
-              />
-            </label>
-          </div>
-        </div>
-
-        <div className="space-y-3.5">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Nome
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Área de interesse
-              </label>
-              <select
-                value={GOAL_AREAS.includes(area as (typeof GOAL_AREAS)[number]) || area === 'Geral' ? area : 'Outras'}
-                onChange={(e) => setArea(e.target.value)}
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-              >
-                <option value="Geral">Geral (sem área fixa)</option>
-                {GOAL_AREAS.map((a) => (
-                  <option key={a} value={a}>
-                    {a}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Banca examinadora (opcional)
-              </label>
-              <input
-                type="text"
-                value={examBoard}
-                onChange={(e) => setExamBoard(e.target.value)}
-                placeholder="Ex: Cebraspe, FGV"
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Concurso pretendido (opcional)
-              </label>
-              <input
-                type="text"
-                value={examName}
-                onChange={(e) => setExamName(e.target.value)}
-                placeholder="Ex: TJ-SP"
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Cargo pretendido (opcional)
-              </label>
-              <input
-                type="text"
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
-                placeholder="Ex: Analista"
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Meta semanal (h)
-              </label>
-              <input
-                type="number"
-                inputMode="decimal"
-                min={0}
-                max={120}
-                step="0.5"
-                value={weeklyStudyTarget}
-                onChange={(e) => setWeeklyStudyTarget(e.target.value)}
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Questões/semana
-              </label>
-              <input
-                type="number"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                min={0}
-                step={10}
-                value={weeklyQuestionTarget}
-                onChange={(e) => setWeeklyQuestionTarget(e.target.value)}
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
-              />
-            </div>
-          </div>
-        </div>
-
-        {mainError && <p className="text-xs font-medium text-[var(--negative)]">{mainError}</p>}
-        {mainMsg && (
-          <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--positive)]">
-            <CheckCircle2 className="w-4 h-4" />
-            {mainMsg}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={savingMain}
-          className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] hover:opacity-95 disabled:opacity-60"
-        >
-          {savingMain ? 'Salvando...' : 'Salvar dados e metas'}
-        </button>
-      </form>
-
-      {/* Disciplinas e assuntos */}
-      <section className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-3.5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
-              Disciplinas e assuntos
-            </h2>
-            <p className="text-xs text-[var(--text-muted)]">
-              {subjects.filter((s) => !s.archived_at).length} ativa(s)
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowArchivedSubjects((v) => !v)}
-              className="min-h-[40px] px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)]"
-            >
-              {showArchivedSubjects ? 'Ativas' : 'Arquivadas'}
-            </button>
-            <button
-              type="button"
-              onClick={openNewSubject}
-              className="min-h-[40px] inline-flex items-center gap-1.5 rounded-xl bg-[var(--gold)] px-3.5 py-2 text-xs font-semibold text-[var(--gold-ink)]"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Nova
-            </button>
-          </div>
-        </div>
-
-        {visibleSubjects.length === 0 ? (
-          <p className="text-xs text-[var(--text-muted)] py-3 text-center">
-            {showArchivedSubjects
-              ? 'Nenhuma disciplina arquivada.'
-              : 'Nenhuma disciplina cadastrada ainda.'}
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {visibleSubjects.map((s) => {
-              const tCount = topics.filter((t) => t.subject_id === s.id).length;
-              return (
-                <div
-                  key={s.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-color)]/70 bg-[var(--bg-app)] px-3.5 py-2.5"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: s.color }}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
+        {/* Coluna esquerda: Dados pessoais/Metas + Disciplinas */}
+        <div className="lg:col-span-7 space-y-4">
+          <Card padding="lg">
+            <form onSubmit={handleSaveMain} className="space-y-4">
+              <div className="flex items-center gap-4 pb-4 border-b border-[var(--border-color)]">
+                <div className="w-14 h-14 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] text-[var(--gold-text)] flex items-center justify-center overflow-hidden shrink-0">
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.full_name || 'Perfil'}
+                      className="w-full h-full object-cover"
                     />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[var(--text-main)] truncate">
-                        {s.name}
-                      </p>
-                      <p className="text-[11px] text-[var(--text-muted)]">
-                        {tCount} {tCount === 1 ? 'assunto' : 'assuntos'}
-                      </p>
-                    </div>
+                  ) : (
+                    <User className="w-6 h-6" />
+                  )}
+                </div>
+                <div className="min-w-0 space-y-1.5">
+                  <p className="text-sm font-bold text-[var(--text-main)] truncate">
+                    {profile?.full_name || 'Estudante'}
+                  </p>
+                  <p className="text-xs text-[var(--text-muted)] truncate">{user?.email}</p>
+                  <label className="min-h-[36px] inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] cursor-pointer">
+                    <Camera className="w-3.5 h-3.5 text-[var(--gold-text)]" />
+                    {uploadingAvatar ? 'Enviando...' : 'Alterar foto'}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={handleAvatarChange}
+                      disabled={uploadingAvatar}
+                      className="sr-only"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-3.5">
+                <div>
+                  <FieldLabel htmlFor="account-name">Nome</FieldLabel>
+                  <Input
+                    id="account-name"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <FieldLabel htmlFor="account-area">Área de interesse</FieldLabel>
+                    <Select
+                      id="account-area"
+                      value={
+                        GOAL_AREAS.includes(area as (typeof GOAL_AREAS)[number]) || area === 'Geral'
+                          ? area
+                          : 'Outras'
+                      }
+                      onChange={(e) => setArea(e.target.value)}
+                    >
+                      <option value="Geral">Geral (sem área fixa)</option>
+                      {GOAL_AREAS.map((a) => (
+                        <option key={a} value={a}>
+                          {a}
+                        </option>
+                      ))}
+                    </Select>
                   </div>
 
-                  <div className="flex items-center gap-0.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => openEditSubject(s)}
-                      className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)]"
-                      aria-label="Editar disciplina"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => archiveSubject(s.id, !s.archived_at)}
-                      className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--gold-text)]"
-                      title={s.archived_at ? 'Reativar' : 'Arquivar'}
-                      aria-label={s.archived_at ? 'Reativar disciplina' : 'Arquivar disciplina'}
-                    >
-                      <Archive className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteSubjTarget(s)}
-                      className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--negative)]"
-                      aria-label="Excluir disciplina"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <div>
+                    <FieldLabel htmlFor="account-board">Banca examinadora (opcional)</FieldLabel>
+                    <Input
+                      id="account-board"
+                      type="text"
+                      value={examBoard}
+                      onChange={(e) => setExamBoard(e.target.value)}
+                      placeholder="Ex: Cebraspe, FGV"
+                    />
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
 
-      {/* Intervalos de revisão e fuso */}
-      <form
-        onSubmit={handleSavePreferences}
-        className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-4"
-      >
-        <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
-          Intervalos de revisão
-        </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <FieldLabel htmlFor="account-exam">Concurso pretendido (opcional)</FieldLabel>
+                    <Input
+                      id="account-exam"
+                      type="text"
+                      value={examName}
+                      onChange={(e) => setExamName(e.target.value)}
+                      placeholder="Ex: TJ-SP"
+                    />
+                  </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Ciclos padrão (dias)
-            </label>
-            <input
-              type="text"
-              value={intervalsText}
-              onChange={(e) => setIntervalsText(e.target.value)}
-              placeholder="1, 7, 15, 30"
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
-            />
-          </div>
+                  <div>
+                    <FieldLabel htmlFor="account-position">Cargo pretendido (opcional)</FieldLabel>
+                    <Input
+                      id="account-position"
+                      type="text"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      placeholder="Ex: Analista"
+                    />
+                  </div>
+                </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Fuso horário
-            </label>
-            <select
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-            >
-              {TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <FieldLabel htmlFor="account-hours-target">Meta semanal (h)</FieldLabel>
+                    <Input
+                      id="account-hours-target"
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={120}
+                      step="0.5"
+                      value={weeklyStudyTarget}
+                      onChange={(e) => setWeeklyStudyTarget(e.target.value)}
+                      className="tabular-nums"
+                    />
+                  </div>
+
+                  <div>
+                    <FieldLabel htmlFor="account-questions-target">Questões/semana</FieldLabel>
+                    <Input
+                      id="account-questions-target"
+                      type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      min={0}
+                      step={10}
+                      value={weeklyQuestionTarget}
+                      onChange={(e) => setWeeklyQuestionTarget(e.target.value)}
+                      className="tabular-nums"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {mainError && <p className="text-xs font-medium text-[var(--negative)]">{mainError}</p>}
+              {mainMsg && (
+                <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--positive)]">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {mainMsg}
+                </p>
+              )}
+
+              <Button type="submit" fullWidth disabled={savingMain}>
+                {savingMain ? 'Salvando...' : 'Salvar dados e metas'}
+              </Button>
+            </form>
+          </Card>
+
+          <Card padding="lg" className="space-y-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-sm font-bold text-[var(--text-main)]">
+                  Disciplinas e assuntos
+                </h2>
+                <p className="text-xs text-[var(--text-muted)] tabular-nums">
+                  {subjects.filter((s) => !s.archived_at).length} ativa(s)
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowArchivedSubjects((v) => !v)}
+                  className="!min-h-[40px] !px-2.5 !text-xs"
+                >
+                  {showArchivedSubjects ? 'Ativas' : 'Arquivadas'}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={openNewSubject}
+                  className="!min-h-[40px] !px-3.5 !text-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Nova
+                </Button>
+              </div>
+            </div>
+
+            {visibleSubjects.length === 0 ? (
+              <p className="text-xs text-[var(--text-muted)] py-3 text-center">
+                {showArchivedSubjects
+                  ? 'Nenhuma disciplina arquivada.'
+                  : 'Nenhuma disciplina cadastrada ainda.'}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {visibleSubjects.map((s) => {
+                  const tCount = topics.filter((t) => t.subject_id === s.id).length;
+                  return (
+                    <div
+                      key={s.id}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-color)]/70 bg-[var(--bg-app)] px-3.5 py-2.5"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: s.color }}
+                        />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-[var(--text-main)] truncate">
+                            {s.name}
+                          </p>
+                          <p className="text-[11px] text-[var(--text-muted)] tabular-nums">
+                            {tCount} {tCount === 1 ? 'assunto' : 'assuntos'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => openEditSubject(s)}
+                          className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                          aria-label="Editar disciplina"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => archiveSubject(s.id, !s.archived_at)}
+                          className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--gold-text)]"
+                          title={s.archived_at ? 'Reativar' : 'Arquivar'}
+                          aria-label={s.archived_at ? 'Reativar disciplina' : 'Arquivar disciplina'}
+                        >
+                          <Archive className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteSubjTarget(s)}
+                          className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--negative)]"
+                          aria-label="Excluir disciplina"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        {/* Coluna direita: Intervalos, Aparência, Conta */}
+        <div className="lg:col-span-5 space-y-4">
+          <Card padding="lg">
+            <form onSubmit={handleSavePreferences} className="space-y-4">
+              <h2 className="text-sm font-bold text-[var(--text-main)]">Intervalos de revisão</h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+                <div>
+                  <FieldLabel htmlFor="account-intervals">Ciclos padrão (dias)</FieldLabel>
+                  <Input
+                    id="account-intervals"
+                    type="text"
+                    value={intervalsText}
+                    onChange={(e) => setIntervalsText(e.target.value)}
+                    placeholder="1, 7, 15, 30"
+                    className="tabular-nums"
+                  />
+                </div>
+
+                <div>
+                  <FieldLabel htmlFor="account-timezone">Fuso horário</FieldLabel>
+                  <Select
+                    id="account-timezone"
+                    value={timezone}
+                    onChange={(e) => setTimezone(e.target.value)}
+                  >
+                    {TIMEZONES.map((tz) => (
+                      <option key={tz} value={tz}>
+                        {tz}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+
+              {prefError && <p className="text-xs font-medium text-[var(--negative)]">{prefError}</p>}
+              {prefMsg && (
+                <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--positive)]">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {prefMsg}
+                </p>
+              )}
+
+              <Button type="submit" variant="secondary" fullWidth disabled={savingPref}>
+                {savingPref ? 'Salvando...' : 'Salvar intervalos'}
+              </Button>
+            </form>
+          </Card>
+
+          <Card padding="lg" className="space-y-4">
+            <h2 className="text-sm font-bold text-[var(--text-main)]">Aparência e aplicativo</h2>
+            <div className="grid grid-cols-3 gap-2.5">
+              {(
+                [
+                  ['dark', 'Escuro', Moon],
+                  ['light', 'Claro', Sun],
+                  ['system', 'Auto', Monitor],
+                ] as [ThemePreference, string, React.ComponentType<{ className?: string }>][]
+              ).map(([key, label, Icon]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleThemeSelect(key)}
+                  className={`min-h-[56px] flex flex-col items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-colors ${
+                    theme === key
+                      ? 'border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-ink)]'
+                      : 'border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-main)]'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </button>
               ))}
-            </select>
-          </div>
-        </div>
+            </div>
 
-        {prefError && <p className="text-xs font-medium text-[var(--negative)]">{prefError}</p>}
-        {prefMsg && (
-          <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--positive)]">
-            <CheckCircle2 className="w-4 h-4" />
-            {prefMsg}
-          </p>
-        )}
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <PWAInstallButton />
+              {!isDemoMode && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowPasswordBox((v) => !v)}
+                  className="!min-h-[44px] !text-xs"
+                >
+                  <Lock className="w-3.5 h-3.5 text-[var(--gold-text)]" />
+                  Alterar senha
+                </Button>
+              )}
+            </div>
 
-        <button
-          type="submit"
-          disabled={savingPref}
-          className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-sm font-semibold text-[var(--text-main)]"
-        >
-          {savingPref ? 'Salvando...' : 'Salvar intervalos'}
-        </button>
-      </form>
+            {showPasswordBox && !isDemoMode && (
+              <form
+                onSubmit={handleChangePassword}
+                className="pt-3 border-t border-[var(--border-color)] space-y-3"
+              >
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Nova senha (mín. 6 caracteres)"
+                />
+                <Input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirmar nova senha"
+                />
+                {pwdError && <p className="text-xs text-[var(--negative)]">{pwdError}</p>}
+                {pwdMsg && <p className="text-xs text-[var(--positive)]">{pwdMsg}</p>}
+                <Button type="submit" fullWidth disabled={savingPwd}>
+                  {savingPwd ? 'Atualizando...' : 'Atualizar senha'}
+                </Button>
+              </form>
+            )}
+          </Card>
 
-      {/* Tema e Aplicativo */}
-      <section className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 space-y-4">
-        <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
-          Aparência e aplicativo
-        </h2>
-        <div className="grid grid-cols-3 gap-2.5">
-          {(
-            [
-              ['dark', 'Escuro', Moon],
-              ['light', 'Claro', Sun],
-              ['system', 'Auto', Monitor],
-            ] as [ThemePreference, string, React.ComponentType<{ className?: string }>][]
-          ).map(([key, label, Icon]) => (
-            <button
-              key={key}
+          <Card padding="lg" className="flex flex-col sm:flex-row gap-3">
+            <Button
               type="button"
-              onClick={() => handleThemeSelect(key)}
-              className={`min-h-[56px] flex flex-col items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition-colors ${
-                theme === key
-                  ? 'border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-ink)]'
-                  : 'border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-main)]'
-              }`}
+              variant="secondary"
+              onClick={() => signOut()}
+              className="flex-1"
             >
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 pt-1">
-          <PWAInstallButton />
-          {!isDemoMode && (
-            <button
+              <LogOut className="w-4 h-4" />
+              Sair da conta
+            </Button>
+            <Button
               type="button"
-              onClick={() => setShowPasswordBox((v) => !v)}
-              className="min-h-[44px] inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-xs font-semibold text-[var(--text-main)]"
+              variant="danger"
+              onClick={() => setDeleteDialogOpen(true)}
             >
-              <Lock className="w-3.5 h-3.5 text-[var(--gold-text)]" />
-              Alterar senha
-            </button>
-          )}
+              <Trash2 className="w-4 h-4" />
+              Excluir conta
+            </Button>
+          </Card>
         </div>
-
-        {showPasswordBox && !isDemoMode && (
-          <form
-            onSubmit={handleChangePassword}
-            className="pt-3 border-t border-[var(--border-color)] space-y-3"
-          >
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Nova senha (mín. 6 caracteres)"
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-            />
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirmar nova senha"
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
-            />
-            {pwdError && <p className="text-xs text-[var(--negative)]">{pwdError}</p>}
-            {pwdMsg && <p className="text-xs text-[var(--positive)]">{pwdMsg}</p>}
-            <button
-              type="submit"
-              disabled={savingPwd}
-              className="w-full min-h-[46px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)]"
-            >
-              {savingPwd ? 'Atualizando...' : 'Atualizar senha'}
-            </button>
-          </form>
-        )}
-      </section>
-
-      {/* Sair da conta & Excluir conta */}
-      <section className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 sm:p-5 flex flex-col sm:flex-row gap-3">
-        <button
-          type="button"
-          onClick={() => signOut()}
-          className="flex-1 min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-sm font-semibold text-[var(--text-main)]"
-        >
-          <LogOut className="w-4 h-4" />
-          Sair da conta
-        </button>
-        <button
-          type="button"
-          onClick={() => setDeleteDialogOpen(true)}
-          className="min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--negative)]/50 bg-[var(--bg-app)] px-4 text-sm font-semibold text-[var(--negative)]"
-        >
-          <Trash2 className="w-4 h-4" />
-          Excluir conta
-        </button>
-      </section>
+      </div>
 
       {/* Modal Criar / Editar Disciplina e Assuntos */}
       <Modal
@@ -800,23 +773,19 @@ export const AccountPage: React.FC = () => {
       >
         <form onSubmit={handleSaveSubject} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Nome da disciplina *
-            </label>
-            <input
+            <FieldLabel htmlFor="subject-name">Nome da disciplina *</FieldLabel>
+            <Input
+              id="subject-name"
               type="text"
               value={subjName}
               onChange={(e) => setSubjName(e.target.value)}
               placeholder="Ex: Direito Administrativo"
               required
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">
-              Cor
-            </label>
+            <FieldLabel>Cor</FieldLabel>
             <div className="flex flex-wrap gap-2.5">
               {SUBJECT_COLOR_PALETTE.map((c) => (
                 <button
@@ -824,7 +793,9 @@ export const AccountPage: React.FC = () => {
                   type="button"
                   onClick={() => setSubjColor(c)}
                   className={`w-8 h-8 rounded-full transition-transform ${
-                    subjColor === c ? 'ring-2 ring-offset-2 ring-offset-[var(--bg-card)] ring-[#D4A853] scale-110' : ''
+                    subjColor === c
+                      ? 'ring-2 ring-offset-2 ring-offset-[var(--bg-card)] ring-[#D4A853] scale-110'
+                      : ''
                   }`}
                   style={{ backgroundColor: c }}
                   aria-label={`Selecionar cor ${c}`}
@@ -835,24 +806,23 @@ export const AccountPage: React.FC = () => {
 
           {editingSubject && (
             <div className="pt-2 border-t border-[var(--border-color)] space-y-2.5">
-              <label className="block text-xs font-semibold text-[var(--text-muted)]">
-                Assuntos ({editingTopics.length})
-              </label>
+              <FieldLabel>Assuntos ({editingTopics.length})</FieldLabel>
               <div className="flex gap-2">
-                <input
+                <Input
                   type="text"
                   value={newTopicName}
                   onChange={(e) => setNewTopicName(e.target.value)}
                   placeholder="Novo assunto..."
-                  className="flex-1 min-w-0 min-h-[44px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3 text-base text-[var(--text-main)]"
+                  className="flex-1 min-w-0 !min-h-[44px]"
                 />
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={handleAddInlineTopic}
-                  className="min-h-[44px] px-3.5 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)]"
+                  className="!min-h-[44px] !px-3.5 !text-xs"
                 >
                   Adicionar
-                </button>
+                </Button>
               </div>
               {editingTopics.length > 0 && (
                 <div className="max-h-36 overflow-y-auto space-y-1.5">
@@ -880,13 +850,9 @@ export const AccountPage: React.FC = () => {
           {subjError && <p className="text-xs font-medium text-[var(--negative)]">{subjError}</p>}
 
           <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
-            <button
-              type="submit"
-              disabled={savingSubj}
-              className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] disabled:opacity-60"
-            >
+            <Button type="submit" fullWidth disabled={savingSubj}>
               {savingSubj ? 'Salvando...' : 'Salvar disciplina'}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

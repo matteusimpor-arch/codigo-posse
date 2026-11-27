@@ -160,19 +160,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const data = await repo.fetchWorkspaceData(user.id);
-      setProfile(
-        data.profile ?? {
-          id: user.id,
-          full_name: (user.user_metadata?.full_name as string) || '',
-          avatar_url: null,
+      let resolvedProfile = data.profile;
+      if (!resolvedProfile) {
+        resolvedProfile = await repo.upsertProfile(user.id, {
+          full_name: (user.user_metadata?.full_name as string) || (user.user_metadata?.name as string) || '',
+          avatar_url: (user.user_metadata?.avatar_url as string) || null,
           onboarding_completed: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-      );
-      setSettings(data.settings);
-      if (data.settings?.theme === 'light' || data.settings?.theme === 'dark') {
-        setTheme(data.settings.theme);
+        });
+      }
+      let resolvedSettings = data.settings;
+      if (!resolvedSettings) {
+        resolvedSettings = await repo.upsertUserSettings(user.id, {
+          theme: 'dark',
+          timezone: DEFAULT_TIMEZONE,
+        });
+      }
+      setProfile(resolvedProfile);
+      setSettings(resolvedSettings);
+      if (resolvedSettings?.theme === 'light' || resolvedSettings?.theme === 'dark') {
+        setTheme(resolvedSettings.theme);
       }
       setGoals(data.goals);
       setSubjects(data.subjects);
@@ -182,7 +188,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setQuestionSessions(data.questionSessions);
       setReviews(data.reviews);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar dados do estudante.');
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Erro ao carregar dados do estudante.';
+      setError(msg);
     } finally {
       setLoading(false);
     }

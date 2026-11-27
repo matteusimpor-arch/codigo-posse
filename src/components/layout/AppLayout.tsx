@@ -28,45 +28,58 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   return (
     <div className="min-h-dvh flex flex-col bg-[var(--bg-app)] text-[var(--text-main)]">
       {isDemoMode && (
-        <div className="bg-[var(--bg-card)] border-b border-[var(--border-color)] px-3.5 py-1.5 text-xs text-[var(--text-muted)] flex items-center justify-between gap-2">
-          <span className="truncate">
-            <strong className="text-[var(--gold-text)]">Modo demonstração</strong> · Sessão local
-          </span>
-          <button
-            type="button"
-            onClick={() => signOut()}
-            className="font-semibold text-[var(--gold-text)] underline underline-offset-2 shrink-0 min-h-[32px] px-1"
-          >
-            Sair
-          </button>
+        <div className="bg-[var(--bg-card)] border-b border-[var(--border-color)] px-3.5 sm:px-6 py-1.5 text-xs text-[var(--text-muted)]">
+          <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+            <span className="truncate">
+              <strong className="text-[var(--gold-text)]">Modo demonstração</strong> · Sessão local
+            </span>
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="font-semibold text-[var(--gold-text)] underline underline-offset-2 shrink-0 min-h-[32px] px-1"
+            >
+              Sair
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Cabeçalho padronizado — mesma cor de fundo com borda discreta */}
+      {/* Cabeçalho compacto unificado com o fundo principal */}
       <header className="sticky top-0 z-30 bg-[var(--bg-app)] border-b border-[var(--border-color)] pt-[env(safe-area-inset-top)]">
-        <div className="max-w-4xl mx-auto h-14 px-3.5 sm:px-6 flex items-center justify-between gap-3">
-          <Link to="/" className="shrink-0 min-h-[44px] flex items-center" aria-label="Ir para o início">
+        <div className="max-w-6xl mx-auto h-14 px-3.5 sm:px-6 flex items-center justify-between gap-3 lg:gap-4">
+          <Link
+            to="/"
+            className="shrink-0 min-h-[44px] flex items-center"
+            aria-label="Ir para o início"
+          >
             <BrandLogo size="sm" />
           </Link>
 
-          {/* Navegação desktop (5 opções idênticas) */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Navegação principal">
-            {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                className={({ isActive }) =>
-                  `min-h-[40px] px-3.5 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap shrink-0 flex items-center ${
-                    isActive
-                      ? 'text-[var(--gold-text)] bg-[var(--bg-card)] font-semibold'
-                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+          {/* 5 opções principais centralizadas na versão desktop */}
+          <nav
+            className="hidden md:flex items-center justify-center gap-3 lg:gap-6 min-w-0"
+            aria-label="Navegação principal"
+          >
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/'}
+                  className={({ isActive }) =>
+                    `min-h-[44px] px-1 inline-flex items-center gap-1.5 lg:gap-2 text-[13px] lg:text-sm transition-colors whitespace-nowrap shrink-0 border-b-2 ${
+                      isActive
+                        ? 'text-[var(--gold-text)] border-[var(--gold)] font-semibold'
+                        : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-main)] font-medium'
+                    }`
+                  }
+                >
+                  <Icon className="w-3.5 h-3.5 lg:w-4 lg:h-4 shrink-0" strokeWidth={1.9} />
+                  <span>{item.label}</span>
+                </NavLink>
+              );
+            })}
           </nav>
 
           {/* Ícone de usuário no canto superior direito */}
@@ -75,7 +88,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             aria-label="Perfil e configurações"
             title={profile?.full_name || 'Perfil e configurações'}
             className={({ isActive }) =>
-              `min-h-[44px] min-w-[44px] -mr-1.5 flex items-center justify-center rounded-full transition-colors overflow-hidden ${
+              `min-h-[44px] min-w-[44px] -mr-1.5 flex items-center justify-center rounded-full transition-colors overflow-hidden shrink-0 ${
                 isActive
                   ? 'text-[var(--gold-text)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
@@ -95,12 +108,12 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         </div>
       </header>
 
-      {/* Conteúdo principal com margens uniformes (14px mobile) e folga inferior segura */}
-      <main className="flex-1 w-full max-w-4xl mx-auto px-3.5 sm:px-6 pt-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10">
+      {/* Container centralizado (1152px max-w) com margens laterais 14px no mobile e folga para o menu inferior */}
+      <main className="flex-1 w-full max-w-6xl mx-auto px-3.5 sm:px-6 pt-4 sm:pt-6 pb-[calc(5.25rem+env(safe-area-inset-bottom))] md:pb-10">
         {children}
       </main>
 
-      {/* Barra inferior fixa — 5 abas idênticas à referência */}
+      {/* Barra inferior fixa integrada ao fundo principal — 5 abas sem fundos coloridos individuais */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-app)] border-t border-[var(--border-color)] pb-[env(safe-area-inset-bottom)]"
         aria-label="Navegação inferior"
@@ -114,10 +127,10 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 to={item.to}
                 end={item.to === '/'}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center gap-1 min-h-[48px] text-[11px] font-medium transition-colors ${
+                  `flex flex-col items-center justify-center gap-1 min-h-[48px] text-[11px] transition-colors ${
                     isActive
                       ? 'text-[var(--gold-text)] font-semibold'
-                      : 'text-[var(--text-muted)]'
+                      : 'text-[var(--text-muted)] font-medium'
                   }`
                 }
               >

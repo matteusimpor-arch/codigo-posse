@@ -87,26 +87,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  const mapAuthError = (err: { message?: string } | null | undefined, fallback: string) => {
+    const msg = err?.message || '';
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
+      return 'Não foi possível conectar ao servidor de autenticação. Verifique sua conexão e tente novamente.';
+    }
+    if (msg.includes('Invalid login credentials')) {
+      return 'E-mail ou senha incorretos.';
+    }
+    if (msg.includes('Email not confirmed')) {
+      return 'Confirme seu e-mail antes de acessar sua conta.';
+    }
+    if (msg.includes('User already registered')) {
+      return 'Este e-mail já está cadastrado.';
+    }
+    return msg || fallback;
+  };
+
   const signInWithEmail = useCallback(async (email: string, password: string) => {
     if (!supabase) {
-      throw new Error('O Supabase ainda não está configurado neste ambiente.');
+      throw new Error('Autenticação indisponível: configure as variáveis do Supabase.');
     }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        throw new Error('E-mail ou senha incorretos.');
-      }
-      if (error.message.includes('Email not confirmed')) {
-        throw new Error('Confirme seu e-mail antes de acessar sua conta.');
-      }
-      throw new Error(error.message);
+      throw new Error(mapAuthError(error, 'Falha ao entrar na conta.'));
     }
     setIsDemoMode(false);
   }, []);
 
   const signUpWithEmail = useCallback(async (fullName: string, email: string, password: string) => {
     if (!supabase) {
-      throw new Error('O Supabase ainda não está configurado neste ambiente.');
+      throw new Error('Cadastro indisponível: configure as variáveis do Supabase.');
     }
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -116,7 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: `${window.location.origin}/`,
       },
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(mapAuthError(error, 'Erro ao criar conta.'));
     return {
       needsEmailConfirmation: !data.session,
     };
@@ -124,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = useCallback(async () => {
     if (!supabase) {
-      throw new Error('Configure o Supabase e o provedor Google OAuth antes de usar este recurso.');
+      throw new Error('Login com Google indisponível: configure o Supabase.');
     }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -132,17 +143,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         redirectTo: `${window.location.origin}/`,
       },
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(mapAuthError(error, 'Falha ao iniciar login com Google.'));
   }, []);
 
   const sendPasswordReset = useCallback(async (email: string) => {
     if (!supabase) {
-      throw new Error('O Supabase ainda não está configurado neste ambiente.');
+      throw new Error('Recuperação indisponível: configure o Supabase.');
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/conta`,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(mapAuthError(error, 'Erro ao solicitar recuperação.'));
   }, []);
 
   const updatePassword = useCallback(async (newPassword: string) => {
@@ -150,10 +161,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Alteração de senha não está disponível no modo demonstração local.');
     }
     if (!supabase) {
-      throw new Error('O Supabase ainda não está configurado neste ambiente.');
+      throw new Error('Conexão com o Supabase não configurada.');
     }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(mapAuthError(error, 'Erro ao atualizar senha.'));
   }, [isDemoMode]);
 
   const signOut = useCallback(async () => {

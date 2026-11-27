@@ -25,9 +25,30 @@ export interface WorkspacePayload {
 
 function assertClient() {
   if (!supabase) {
-    throw new Error('Supabase não está configurado neste ambiente.');
+    throw new Error('Conexão com o banco de dados não configurada.');
   }
   return supabase;
+}
+
+export function formatSupabaseError(err: { code?: string; message?: string } | null | undefined): string {
+  if (!err) return 'Ocorreu um erro inesperado ao comunicar com o servidor.';
+  const msg = err.message || '';
+  const code = err.code || '';
+
+  if (
+    code === 'PGRST205' ||
+    msg.includes('schema cache') ||
+    msg.includes("Could not find the table 'public.")
+  ) {
+    return 'As tabelas do aplicativo ainda não foram inicializadas no Supabase ou o cache da API precisa ser atualizado. Execute as migrations SQL do projeto e recarregue o schema (NOTIFY pgrst, \'reload schema\').';
+  }
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
+    return 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.';
+  }
+  if (code === '42501' || msg.toLowerCase().includes('row-level security')) {
+    return 'Permissão insuficiente para acessar este registro. Faça login novamente.';
+  }
+  return msg;
 }
 
 export async function fetchWorkspaceData(userId: string): Promise<WorkspacePayload> {
@@ -68,7 +89,7 @@ export async function fetchWorkspaceData(userId: string): Promise<WorkspacePaylo
   ].filter(Boolean);
 
   if (errors.length > 0) {
-    throw new Error(errors[0]!.message);
+    throw new Error(formatSupabaseError(errors[0]));
   }
 
   let profile = profileRes.data as Profile | null;
@@ -101,7 +122,7 @@ export async function upsertProfile(userId: string, values: Partial<Profile>): P
     .upsert({ id: userId, ...values }, { onConflict: 'id' })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as Profile;
 }
 
@@ -114,14 +135,14 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
     .from('avatars')
     .upload(path, file, { upsert: true });
 
-  if (uploadError) throw new Error(uploadError.message);
+  if (uploadError) throw new Error(formatSupabaseError(uploadError));
 
   const { error: profileError } = await client
     .from('profiles')
     .update({ avatar_url: path })
     .eq('id', userId);
 
-  if (profileError) throw new Error(profileError.message);
+  if (profileError) throw new Error(formatSupabaseError(profileError));
 
   const { data: signed } = await client.storage
     .from('avatars')
@@ -140,7 +161,7 @@ export async function upsertUserSettings(
     .upsert({ user_id: userId, ...values }, { onConflict: 'user_id' })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as UserSettings;
 }
 
@@ -157,7 +178,7 @@ export async function createGoal(
     .insert({ ...values, user_id: userId })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as Goal;
 }
 
@@ -182,14 +203,14 @@ export async function updateGoal(
     .eq('user_id', userId)
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as Goal;
 }
 
 export async function deleteGoal(userId: string, goalId: string): Promise<void> {
   const client = assertClient();
   const { error } = await client.from('goals').delete().eq('id', goalId).eq('user_id', userId);
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
 }
 
 export async function createSubject(
@@ -203,7 +224,7 @@ export async function createSubject(
     .insert({ ...values, user_id: userId })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
 
   const subject = data as Subject;
   let links: GoalSubject[] = [];
@@ -220,7 +241,7 @@ export async function createSubject(
         }))
       )
       .select();
-    if (linkErr) throw new Error(linkErr.message);
+    if (linkErr) throw new Error(formatSupabaseError(linkErr));
     links = (linkData ?? []) as GoalSubject[];
   }
   return { subject, links };
@@ -240,7 +261,7 @@ export async function updateSubject(
     .eq('user_id', userId)
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
 
   let links: GoalSubject[] | undefined;
   if (goalLinks) {
@@ -258,7 +279,7 @@ export async function updateSubject(
           }))
         )
         .select();
-      if (linkErr) throw new Error(linkErr.message);
+      if (linkErr) throw new Error(formatSupabaseError(linkErr));
       links = (linkData ?? []) as GoalSubject[];
     } else {
       links = [];
@@ -274,7 +295,7 @@ export async function deleteSubject(userId: string, subjectId: string): Promise<
     if (error.code === '23503') {
       throw new Error('Esta disciplina possui registros históricos vinculados. Utilize a opção Arquivar para preservar seu histórico.');
     }
-    throw new Error(error.message);
+    throw new Error(formatSupabaseError(error));
   }
 }
 
@@ -288,7 +309,7 @@ export async function createTopic(
     .insert({ ...values, user_id: userId })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as Topic;
 }
 
@@ -305,14 +326,14 @@ export async function updateTopic(
     .eq('user_id', userId)
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as Topic;
 }
 
 export async function deleteTopic(userId: string, topicId: string): Promise<void> {
   const client = assertClient();
   const { error } = await client.from('topics').delete().eq('id', topicId).eq('user_id', userId);
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
 }
 
 export async function createStudySession(
@@ -325,7 +346,7 @@ export async function createStudySession(
     .insert({ ...values, user_id: userId })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as StudySession;
 }
 
@@ -342,14 +363,14 @@ export async function updateStudySession(
     .eq('user_id', userId)
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as StudySession;
 }
 
 export async function deleteStudySession(userId: string, sessionId: string): Promise<void> {
   const client = assertClient();
   const { error } = await client.from('study_sessions').delete().eq('id', sessionId).eq('user_id', userId);
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
 }
 
 export async function createQuestionSession(
@@ -362,7 +383,7 @@ export async function createQuestionSession(
     .insert({ ...values, user_id: userId })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as QuestionSession;
 }
 
@@ -379,14 +400,14 @@ export async function updateQuestionSession(
     .eq('user_id', userId)
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as QuestionSession;
 }
 
 export async function deleteQuestionSession(userId: string, sessionId: string): Promise<void> {
   const client = assertClient();
   const { error } = await client.from('question_sessions').delete().eq('id', sessionId).eq('user_id', userId);
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
 }
 
 export async function createReviewsBatch(
@@ -398,7 +419,7 @@ export async function createReviewsBatch(
     .from('reviews')
     .insert(valuesList.map((v) => ({ ...v, user_id: userId })))
     .select();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return (data ?? []) as Review[];
 }
 
@@ -415,12 +436,12 @@ export async function updateReview(
     .eq('user_id', userId)
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
   return data as Review;
 }
 
 export async function deleteReview(userId: string, reviewId: string): Promise<void> {
   const client = assertClient();
   const { error } = await client.from('reviews').delete().eq('id', reviewId).eq('user_id', userId);
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(formatSupabaseError(error));
 }

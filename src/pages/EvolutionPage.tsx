@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { AlertTriangle, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
+import { PageHeader } from '../components/ui/PageHeader';
+import { SegmentedControl } from '../components/ui/SegmentedControl';
+import { WeeklyBarChart } from '../components/ui/WeeklyBarChart';
 import { useData } from '../contexts/DataContext';
 import {
   calculateCurrentStreak,
@@ -76,7 +79,7 @@ export const EvolutionPage: React.FC = () => {
     const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     const currentWeekStart = addDaysISO(todayISO, diffToMonday);
 
-    const rows: { label: string; hours: number; questions: number }[] = [];
+    const rows: { key: string; label: string; hours: number; questions: number }[] = [];
     for (let i = 6; i >= 0; i -= 1) {
       const start = addDaysISO(currentWeekStart, -i * 7);
       const end = addDaysISO(start, 6);
@@ -88,6 +91,7 @@ export const EvolutionPage: React.FC = () => {
         .reduce((acc, q) => acc + q.correct_answers + q.incorrect_answers + q.blank_answers, 0);
 
       rows.push({
+        key: start,
         label: i === 0 ? 'Atual' : `${start.slice(8, 10)}/${start.slice(5, 7)}`,
         hours: Number((secs / 3600).toFixed(1)),
         questions: qs,
@@ -98,7 +102,7 @@ export const EvolutionPage: React.FC = () => {
 
   const monthlySeries = useMemo(() => {
     const [baseYear, baseMonth] = todayISO.slice(0, 7).split('-').map(Number);
-    const rows: { label: string; hours: number; questions: number }[] = [];
+    const rows: { key: string; label: string; hours: number; questions: number }[] = [];
     for (let i = 5; i >= 0; i -= 1) {
       const d = new Date(Date.UTC(baseYear, baseMonth - 1 - i, 1));
       const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
@@ -109,6 +113,7 @@ export const EvolutionPage: React.FC = () => {
         .filter((q) => q.session_date.slice(0, 7) === ym)
         .reduce((acc, q) => acc + q.correct_answers + q.incorrect_answers + q.blank_answers, 0);
       rows.push({
+        key: ym,
         label: MONTH_NAMES[d.getUTCMonth()].slice(0, 3),
         hours: Number((secs / 3600).toFixed(1)),
         questions: qs,
@@ -158,43 +163,48 @@ export const EvolutionPage: React.FC = () => {
 
   const [calYear, calMonthNum] = calendarMonth.split('-').map(Number);
   const selectedDayData = dailyActivityMap.get(selectedDay);
-  const activeChartData = chartView === 'weekly' ? weeklySeries : monthlySeries;
+  const activeChartRaw = chartView === 'weekly' ? weeklySeries : monthlySeries;
   const maxChartVal = Math.max(
-    ...activeChartData.map((d) => (chartMetric === 'hours' ? d.hours : d.questions)),
+    ...activeChartRaw.map((d) => (chartMetric === 'hours' ? d.hours : d.questions)),
     0
   );
+  const chartData = activeChartRaw.map((entry, idx) => {
+    const val = chartMetric === 'hours' ? entry.hours : entry.questions;
+    return {
+      key: entry.key,
+      label: entry.label,
+      value: val,
+      highlight: val > 0 && (val === maxChartVal || idx === activeChartRaw.length - 1),
+    };
+  });
   const hasAnyData = studySessions.length > 0 || questionSessions.length > 0;
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-[var(--text-main)] tracking-tight">
-          Evolução
-        </h1>
-        <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-          Consistência, histórico e pontos de atenção.
-        </p>
-      </div>
+      <PageHeader
+        title="Evolução"
+        subtitle="Consistência, histórico e pontos de atenção."
+      />
 
-      {/* Grade 2x2 de métricas consolidadas */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+      {/* Grade de métricas consolidadas */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card>
           <p className="text-xs sm:text-sm text-[var(--text-muted)]">Total de horas</p>
-          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--gold-text)]">
+          <p className="mt-1.5 tabular-nums text-2xl font-bold text-[var(--gold-text)]">
             {formatDuration(totalStudySeconds)}
           </p>
-        </div>
+        </Card>
 
-        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+        <Card>
           <p className="text-xs sm:text-sm text-[var(--text-muted)]">Questões</p>
-          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--text-main)]">
+          <p className="mt-1.5 tabular-nums text-2xl font-bold text-[var(--text-main)]">
             {questionMetrics.total}
           </p>
-        </div>
+        </Card>
 
-        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+        <Card>
           <p className="text-xs sm:text-sm text-[var(--text-muted)]">Acertos / Erros</p>
-          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--positive)]">
+          <p className="mt-1.5 tabular-nums text-2xl font-bold text-[var(--positive)]">
             {questionMetrics.accuracyRate !== null ? `${questionMetrics.accuracyRate.toFixed(0)}%` : '—'}
             {questionMetrics.errorRate !== null && (
               <span className="ml-1.5 text-sm font-semibold text-[var(--negative)]">
@@ -202,17 +212,17 @@ export const EvolutionPage: React.FC = () => {
               </span>
             )}
           </p>
-        </div>
+        </Card>
 
-        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4">
+        <Card>
           <p className="text-xs sm:text-sm text-[var(--text-muted)]">Frequência</p>
-          <p className="mt-1.5 font-mono-tabular text-2xl font-bold text-[var(--text-main)]">
+          <p className="mt-1.5 tabular-nums text-2xl font-bold text-[var(--text-main)]">
             {distinctDays}d
           </p>
-          <p className="mt-0.5 text-xs text-[var(--text-muted)] font-mono-tabular">
+          <p className="mt-0.5 text-xs text-[var(--text-muted)] tabular-nums">
             Sequência: {currentStreak}d
           </p>
-        </div>
+        </Card>
       </div>
 
       {!hasAnyData ? (
@@ -222,254 +232,192 @@ export const EvolutionPage: React.FC = () => {
           description="Registre sessões de estudo e questões para acompanhar sua evolução."
         />
       ) : (
-        <>
-          {/* Gráfico simples de evolução semanal / mensal */}
-          <section className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="inline-flex p-1 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]">
-                <button
-                  type="button"
-                  onClick={() => setChartView('weekly')}
-                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
-                    chartView === 'weekly'
-                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
-                      : 'text-[var(--text-muted)]'
-                  }`}
-                >
-                  Semanal
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChartView('monthly')}
-                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
-                    chartView === 'monthly'
-                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
-                      : 'text-[var(--text-muted)]'
-                  }`}
-                >
-                  Mensal
-                </button>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-5 items-start">
+          {/* Coluna esquerda: Gráfico + Disciplinas */}
+          <div className="lg:col-span-7 space-y-3">
+            <Card className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <SegmentedControl
+                  options={[
+                    { value: 'weekly', label: 'Semanal' },
+                    { value: 'monthly', label: 'Mensal' },
+                  ]}
+                  value={chartView}
+                  onChange={setChartView}
+                  ariaLabel="Periodicidade do gráfico"
+                  fullWidthOnMobile={false}
+                  surface="app"
+                />
+
+                <SegmentedControl
+                  options={[
+                    { value: 'hours', label: 'Horas' },
+                    { value: 'questions', label: 'Questões' },
+                  ]}
+                  value={chartMetric}
+                  onChange={setChartMetric}
+                  ariaLabel="Métrica do gráfico"
+                  fullWidthOnMobile={false}
+                  surface="app"
+                />
               </div>
 
-              <div className="inline-flex p-1 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]">
-                <button
-                  type="button"
-                  onClick={() => setChartMetric('hours')}
-                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
-                    chartMetric === 'hours'
-                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
-                      : 'text-[var(--text-muted)]'
-                  }`}
-                >
-                  Horas
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChartMetric('questions')}
-                  className={`min-h-[36px] px-3 rounded-lg text-xs font-semibold transition-colors ${
-                    chartMetric === 'questions'
-                      ? 'bg-[var(--bg-card)] text-[var(--gold-text)]'
-                      : 'text-[var(--text-muted)]'
-                  }`}
-                >
-                  Questões
-                </button>
-              </div>
-            </div>
+              {maxChartVal === 0 ? (
+                <p className="py-8 text-center text-xs text-[var(--text-muted)]">
+                  Sem dados para esta métrica neste período.
+                </p>
+              ) : (
+                <WeeklyBarChart
+                  data={chartData}
+                  unitLabel={chartMetric === 'hours' ? 'Estudado' : 'Questões'}
+                  unitSuffix={chartMetric === 'hours' ? 'h' : ''}
+                  heightClass="h-44 lg:h-52"
+                />
+              )}
+            </Card>
 
-            {maxChartVal === 0 ? (
-              <p className="py-8 text-center text-xs text-[var(--text-muted)]">
-                Sem dados para esta métrica neste período.
-              </p>
-            ) : (
-              <div className="h-44 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={activeChartData} margin={{ top: 6, right: 2, left: 2, bottom: 0 }}>
-                    <XAxis
-                      dataKey="label"
-                      tick={{ fontSize: 11, fill: '#94A3B8' }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip
-                      cursor={{ fill: 'rgba(212, 168, 83, 0.08)' }}
-                      contentStyle={{
-                        backgroundColor: 'var(--bg-card)',
-                        borderColor: 'var(--border-color)',
-                        borderRadius: '12px',
-                        color: 'var(--text-main)',
-                        fontSize: '12px',
-                      }}
-                      formatter={(value) => {
-                        const num = Number(value ?? 0);
-                        return chartMetric === 'hours'
-                          ? [`${num.toLocaleString('pt-BR')}h`, 'Estudado']
-                          : [`${num}`, 'Questões'];
-                      }}
-                    />
-                    <Bar
-                      dataKey={chartMetric === 'hours' ? 'hours' : 'questions'}
-                      radius={[6, 6, 6, 6]}
-                      maxBarSize={36}
-                    >
-                      {activeChartData.map((entry, idx) => {
-                        const v = chartMetric === 'hours' ? entry.hours : entry.questions;
-                        const highlight = v > 0 && (v === maxChartVal || idx === activeChartData.length - 1);
-                        return (
-                          <Cell
-                            key={`${entry.label}-${idx}`}
-                            fill={highlight ? '#D4A853' : '#8C703B'}
-                          />
-                        );
-                      })}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </section>
-
-          {/* Calendário simplificado de estudos */}
-          <section className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
-                {MONTH_NAMES[calMonthNum - 1]} {calYear}
-              </h2>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => shiftMonth(-1)}
-                  className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
-                  aria-label="Mês anterior"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => shiftMonth(1)}
-                  className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
-                  aria-label="Próximo mês"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-[var(--text-muted)]">
-              {WEEKDAY_HEADERS.map((w, idx) => (
-                <div key={`${w}-${idx}`} className="py-1">
-                  {w}
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-7 gap-1.5">
-              {calendarCells.map((cell, idx) => {
-                if (!cell) return <div key={`empty-${idx}`} />;
-                const activity = dailyActivityMap.get(cell.iso);
-                const studied = Boolean(activity && (activity.seconds > 0 || activity.questions > 0));
-                const isSelected = selectedDay === cell.iso;
-                const isToday = todayISO === cell.iso;
-
-                return (
-                  <button
-                    key={cell.iso}
-                    type="button"
-                    onClick={() => setSelectedDay(cell.iso)}
-                    className={`min-h-[40px] rounded-xl text-xs font-mono-tabular font-semibold transition-all flex items-center justify-center ${
-                      studied
-                        ? 'bg-[var(--gold)] text-[var(--gold-ink)]'
-                        : 'bg-[var(--bg-app)] text-[var(--text-muted)]'
-                    } ${isSelected ? 'ring-2 ring-[var(--text-main)]' : ''} ${
-                      isToday && !studied ? 'border border-[var(--gold)]' : ''
-                    }`}
-                  >
-                    {cell.day}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="pt-2.5 border-t border-[var(--border-color)] flex items-center justify-between text-xs">
-              <span className="font-mono-tabular font-medium text-[var(--text-muted)]">
-                {formatDateBR(selectedDay)}
-              </span>
-              <span className="font-mono-tabular text-[var(--text-main)]">
-                {selectedDayData
-                  ? `${formatDuration(selectedDayData.seconds)} · ${selectedDayData.questions} questões`
-                  : 'Sem registros'}
-              </span>
-            </div>
-          </section>
-
-          {/* Disciplinas que precisam de atenção */}
-          {attentionAlerts.length > 0 && (
-            <section className="rounded-2xl border border-[var(--negative)]/50 bg-[var(--bg-card)] p-4 space-y-2.5">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-[var(--negative)] shrink-0" />
-                <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
-                  Precisam de atenção
+            {subjectBreakdown.length > 0 && (
+              <Card className="space-y-2.5">
+                <h2 className="text-sm font-bold text-[var(--text-main)]">
+                  Por disciplina
                 </h2>
-              </div>
-              <div className="space-y-2">
-                {attentionAlerts.map((alert) => (
-                  <div
-                    key={alert.subjectId}
-                    className="flex items-center justify-between gap-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]/60 px-3.5 py-2.5"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: alert.color }}
-                      />
-                      <span className="text-xs font-semibold text-[var(--text-main)] truncate">
-                        {alert.subjectName}
+                <div className="divide-y divide-[var(--border-color)]/60">
+                  {subjectBreakdown.map((item) => (
+                    <div
+                      key={item.subjectId}
+                      className="flex items-center justify-between gap-3 py-2.5 first:pt-1 last:pb-1"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-[var(--text-main)] truncate">
+                            {item.subjectName}
+                          </p>
+                          <p className="text-xs text-[var(--text-muted)] tabular-nums">
+                            {formatDuration(item.studySeconds)} · {item.questionsTotal} questões
+                          </p>
+                        </div>
+                      </div>
+                      <span className="tabular-nums text-sm font-bold text-[var(--positive)] shrink-0">
+                        {item.accuracyRate !== null ? `${item.accuracyRate.toFixed(0)}%` : '—'}
                       </span>
                     </div>
-                    <span className="text-[11px] font-medium text-[var(--negative)] text-right shrink-0">
-                      {alert.reason}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
 
-          {/* Desempenho por disciplina */}
-          {subjectBreakdown.length > 0 && (
-            <section className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-4 space-y-2.5">
-              <h2 className="font-display text-sm font-bold text-[var(--text-main)]">
-                Por disciplina
-              </h2>
-              <div className="divide-y divide-[var(--border-color)]/60">
-                {subjectBreakdown.map((item) => (
-                  <div
-                    key={item.subjectId}
-                    className="flex items-center justify-between gap-3 py-2.5 first:pt-1 last:pb-1"
+          {/* Coluna direita: Calendário + Pontos de atenção */}
+          <div className="lg:col-span-5 space-y-3">
+            <Card className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold text-[var(--text-main)]">
+                  {MONTH_NAMES[calMonthNum - 1]} {calYear}
+                </h2>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => shiftMonth(-1)}
+                    className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                    aria-label="Mês anterior"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[var(--text-main)] truncate">
-                          {item.subjectName}
-                        </p>
-                        <p className="text-xs text-[var(--text-muted)] font-mono-tabular">
-                          {formatDuration(item.studySeconds)} · {item.questionsTotal} questões
-                        </p>
-                      </div>
-                    </div>
-                    <span className="font-mono-tabular text-sm font-bold text-[var(--positive)] shrink-0">
-                      {item.accuracyRate !== null ? `${item.accuracyRate.toFixed(0)}%` : '—'}
-                    </span>
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => shiftMonth(1)}
+                    className="min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                    aria-label="Próximo mês"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-[var(--text-muted)]">
+                {WEEKDAY_HEADERS.map((w, idx) => (
+                  <div key={`${w}-${idx}`} className="py-1">
+                    {w}
                   </div>
                 ))}
               </div>
-            </section>
-          )}
-        </>
+
+              <div className="grid grid-cols-7 gap-1.5">
+                {calendarCells.map((cell, idx) => {
+                  if (!cell) return <div key={`empty-${idx}`} />;
+                  const activity = dailyActivityMap.get(cell.iso);
+                  const studied = Boolean(activity && (activity.seconds > 0 || activity.questions > 0));
+                  const isSelected = selectedDay === cell.iso;
+                  const isToday = todayISO === cell.iso;
+
+                  return (
+                    <button
+                      key={cell.iso}
+                      type="button"
+                      onClick={() => setSelectedDay(cell.iso)}
+                      className={`min-h-[40px] rounded-xl text-xs tabular-nums font-semibold transition-all flex items-center justify-center ${
+                        studied
+                          ? 'bg-[var(--gold)] text-[var(--gold-ink)]'
+                          : 'bg-[var(--bg-app)] text-[var(--text-muted)]'
+                      } ${isSelected ? 'ring-2 ring-[var(--text-main)]' : ''} ${
+                        isToday && !studied ? 'border border-[var(--gold)]' : ''
+                      }`}
+                    >
+                      {cell.day}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="pt-2.5 border-t border-[var(--border-color)] flex items-center justify-between text-xs">
+                <span className="tabular-nums font-medium text-[var(--text-muted)]">
+                  {formatDateBR(selectedDay)}
+                </span>
+                <span className="tabular-nums text-[var(--text-main)]">
+                  {selectedDayData
+                    ? `${formatDuration(selectedDayData.seconds)} · ${selectedDayData.questions} questões`
+                    : 'Sem registros'}
+                </span>
+              </div>
+            </Card>
+
+            {attentionAlerts.length > 0 && (
+              <Card className="border-[var(--negative)]/50 space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-[var(--negative)] shrink-0" />
+                  <h2 className="text-sm font-bold text-[var(--text-main)]">
+                    Precisam de atenção
+                  </h2>
+                </div>
+                <div className="space-y-2">
+                  {attentionAlerts.map((alert) => (
+                    <div
+                      key={alert.subjectId}
+                      className="flex items-center justify-between gap-3 rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)]/60 px-3.5 py-2.5"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: alert.color }}
+                        />
+                        <span className="text-xs font-semibold text-[var(--text-main)] truncate">
+                          {alert.subjectName}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-[var(--negative)] text-right shrink-0">
+                        {alert.reason}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

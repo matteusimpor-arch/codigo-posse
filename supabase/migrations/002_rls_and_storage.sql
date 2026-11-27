@@ -57,22 +57,26 @@ ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 -- ----------------------------------------------------------------------------
 -- Políticas para PROFILES (usa id = auth.uid())
 -- ----------------------------------------------------------------------------
+DROP POLICY IF EXISTS "profiles_select_own" ON public.profiles;
 CREATE POLICY "profiles_select_own"
   ON public.profiles FOR SELECT
   TO authenticated
   USING (id = auth.uid());
 
+DROP POLICY IF EXISTS "profiles_insert_own" ON public.profiles;
 CREATE POLICY "profiles_insert_own"
   ON public.profiles FOR INSERT
   TO authenticated
   WITH CHECK (id = auth.uid());
 
+DROP POLICY IF EXISTS "profiles_update_own" ON public.profiles;
 CREATE POLICY "profiles_update_own"
   ON public.profiles FOR UPDATE
   TO authenticated
   USING (id = auth.uid())
   WITH CHECK (id = auth.uid());
 
+DROP POLICY IF EXISTS "profiles_delete_own" ON public.profiles;
 CREATE POLICY "profiles_delete_own"
   ON public.profiles FOR DELETE
   TO authenticated
@@ -104,9 +108,13 @@ DECLARE
   ];
 BEGIN
   FOREACH tbl IN ARRAY tables_with_user_id LOOP
+    EXECUTE format('DROP POLICY IF EXISTS "%I_select_own" ON public.%I', tbl, tbl);
     EXECUTE format('CREATE POLICY "%I_select_own" ON public.%I FOR SELECT TO authenticated USING (user_id = auth.uid())', tbl, tbl);
+    EXECUTE format('DROP POLICY IF EXISTS "%I_insert_own" ON public.%I', tbl, tbl);
     EXECUTE format('CREATE POLICY "%I_insert_own" ON public.%I FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid())', tbl, tbl);
+    EXECUTE format('DROP POLICY IF EXISTS "%I_update_own" ON public.%I', tbl, tbl);
     EXECUTE format('CREATE POLICY "%I_update_own" ON public.%I FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid())', tbl, tbl);
+    EXECUTE format('DROP POLICY IF EXISTS "%I_delete_own" ON public.%I', tbl, tbl);
     EXECUTE format('CREATE POLICY "%I_delete_own" ON public.%I FOR DELETE TO authenticated USING (user_id = auth.uid())', tbl, tbl);
   END LOOP;
 END $$;
@@ -123,38 +131,51 @@ VALUES ('study-attachments', 'study-attachments', FALSE)
 ON CONFLICT (id) DO UPDATE SET public = FALSE;
 
 -- Política: cada usuário acessa apenas sua pasta "<auth.uid()>/..."
+DROP POLICY IF EXISTS "avatars_select_own" ON storage.objects;
 CREATE POLICY "avatars_select_own"
   ON storage.objects FOR SELECT
   TO authenticated
   USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "avatars_insert_own" ON storage.objects;
 CREATE POLICY "avatars_insert_own"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "avatars_update_own" ON storage.objects;
 CREATE POLICY "avatars_update_own"
   ON storage.objects FOR UPDATE
   TO authenticated
   USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text)
   WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "avatars_delete_own" ON storage.objects;
 CREATE POLICY "avatars_delete_own"
   ON storage.objects FOR DELETE
   TO authenticated
   USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "attachments_select_own" ON storage.objects;
 CREATE POLICY "attachments_select_own"
   ON storage.objects FOR SELECT
   TO authenticated
   USING (bucket_id = 'study-attachments' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "attachments_insert_own" ON storage.objects;
 CREATE POLICY "attachments_insert_own"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (bucket_id = 'study-attachments' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "attachments_delete_own" ON storage.objects;
 CREATE POLICY "attachments_delete_own"
   ON storage.objects FOR DELETE
   TO authenticated
   USING (bucket_id = 'study-attachments' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+-- Garantir permissões da API PostgREST no schema public e recarregar o schema cache
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+NOTIFY pgrst, 'reload schema';

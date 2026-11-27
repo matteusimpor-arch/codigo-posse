@@ -1,9 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Edit2, ListChecks, Plus, Trash2 } from 'lucide-react';
 import { SearchableSubjectTopicPicker } from '../components/SearchableSubjectTopicPicker';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { EmptyState } from '../components/ui/EmptyState';
+import { FieldLabel, Input, Select, Textarea } from '../components/ui/Field';
 import { Modal } from '../components/ui/Modal';
+import { PageHeader } from '../components/ui/PageHeader';
+import { SegmentedControl } from '../components/ui/SegmentedControl';
 import { useData } from '../contexts/DataContext';
 import type { QuestionSession } from '../types/database';
 import { calculateQuestionMetrics, consolidateQuestionSessions } from '../utils/calculations';
@@ -194,221 +199,202 @@ export const QuestionsPage: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-[var(--text-main)] tracking-tight">
-          Questões
-        </h1>
-        <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-          Acompanhe acertos, erros e aproveitamento.
-        </p>
-      </div>
+      <PageHeader
+        title="Questões"
+        subtitle="Acompanhe acertos, erros e aproveitamento."
+      />
 
-      {/* Resumo consolidado */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-3.5 sm:p-4">
-          <p className="text-xs text-[var(--text-muted)]">Total</p>
-          <p className="mt-1 font-mono-tabular text-xl sm:text-2xl font-bold text-[var(--text-main)]">
-            {consolidated.total}
-          </p>
-        </div>
-        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-3.5 sm:p-4">
-          <p className="text-xs text-[var(--text-muted)]">Acertos</p>
-          <p className="mt-1 font-mono-tabular text-xl sm:text-2xl font-bold text-[var(--positive)]">
-            {consolidated.accuracyRate !== null ? `${consolidated.accuracyRate.toFixed(0)}%` : '—'}
-          </p>
-        </div>
-        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-color)]/70 p-3.5 sm:p-4">
-          <p className="text-xs text-[var(--text-muted)]">Erros</p>
-          <p className="mt-1 font-mono-tabular text-xl sm:text-2xl font-bold text-[var(--negative)]">
-            {consolidated.errorRate !== null ? `${consolidated.errorRate.toFixed(0)}%` : '—'}
-          </p>
-        </div>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-5 items-start">
+        {/* Coluna esquerda: Resumo + CTA principal */}
+        <div className="lg:col-span-5 space-y-3">
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+            <Card padding="sm" className="sm:p-4">
+              <p className="text-xs text-[var(--text-muted)]">Total</p>
+              <p className="mt-1 tabular-nums text-xl sm:text-2xl font-bold text-[var(--text-main)]">
+                {consolidated.total}
+              </p>
+            </Card>
+            <Card padding="sm" className="sm:p-4">
+              <p className="text-xs text-[var(--text-muted)]">Acertos</p>
+              <p className="mt-1 tabular-nums text-xl sm:text-2xl font-bold text-[var(--positive)]">
+                {consolidated.accuracyRate !== null ? `${consolidated.accuracyRate.toFixed(0)}%` : '—'}
+              </p>
+            </Card>
+            <Card padding="sm" className="sm:p-4">
+              <p className="text-xs text-[var(--text-muted)]">Erros</p>
+              <p className="mt-1 tabular-nums text-xl sm:text-2xl font-bold text-[var(--negative)]">
+                {consolidated.errorRate !== null ? `${consolidated.errorRate.toFixed(0)}%` : '—'}
+              </p>
+            </Card>
+          </div>
 
-      {/* Botão principal */}
-      <button
-        type="button"
-        onClick={openCreate}
-        className="w-full min-h-[50px] rounded-xl bg-[var(--gold)] px-5 py-3 text-base font-semibold text-[var(--gold-ink)] flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.99] transition-all"
-      >
-        <Plus className="w-5 h-5" />
-        Registrar questões
-      </button>
-
-      {/* Abas Histórico / Por disciplina + Filtro */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div className="grid grid-cols-2 sm:inline-flex p-1 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]">
-          <button
+          <Button
             type="button"
-            onClick={() => setTab('history')}
-            className={`min-h-[40px] px-4 rounded-lg text-xs font-semibold transition-colors ${
-              tab === 'history'
-                ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
-                : 'text-[var(--text-muted)]'
-            }`}
+            fullWidth
+            onClick={openCreate}
+            className="min-h-[50px] text-base"
           >
-            Histórico
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('subject')}
-            className={`min-h-[40px] px-4 rounded-lg text-xs font-semibold transition-colors ${
-              tab === 'subject'
-                ? 'bg-[var(--bg-app)] text-[var(--gold-text)]'
-                : 'text-[var(--text-muted)]'
-            }`}
-          >
-            Por disciplina
-          </button>
+            <Plus className="w-5 h-5" />
+            Registrar questões
+          </Button>
         </div>
 
-        {subjects.length > 0 && (
-          <select
-            value={filterSubject}
-            onChange={(e) => setFilterSubject(e.target.value)}
-            aria-label="Filtrar por disciplina"
-            className="min-h-[44px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] px-3 py-1.5 text-base text-[var(--text-main)]"
-          >
-            <option value="all">Todas as disciplinas</option>
-            {subjects.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
+        {/* Coluna direita: Abas, filtro e listagem */}
+        <div className="lg:col-span-7 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <SegmentedControl
+              options={[
+                { value: 'history', label: 'Histórico' },
+                { value: 'subject', label: 'Por disciplina' },
+              ]}
+              value={tab}
+              onChange={setTab}
+              ariaLabel="Visualização de questões"
+            />
 
-      {filteredSessions.length === 0 ? (
-        <EmptyState
-          icon={ListChecks}
-          title="Nenhuma bateria registrada"
-          description="Registre seus acertos e erros para calcular seu aproveitamento automaticamente."
-        />
-      ) : tab === 'history' ? (
-        <div className="space-y-2.5">
-          {filteredSessions.map((q) => {
-            const subj = subjectMap.get(q.subject_id);
-            const top = q.topic_id ? topicMap.get(q.topic_id) : null;
-            const m = calculateQuestionMetrics({
-              correct: q.correct_answers,
-              incorrect: q.incorrect_answers,
-              blank: q.blank_answers,
-            });
-
-            return (
-              <div
-                key={q.id}
-                className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] px-4 py-3.5 flex items-start justify-between gap-3"
+            {subjects.length > 0 && (
+              <Select
+                value={filterSubject}
+                onChange={(e) => setFilterSubject(e.target.value)}
+                aria-label="Filtrar por disciplina"
+                className="sm:w-auto min-h-[44px] bg-[var(--bg-card)] py-1.5"
               >
-                <div className="flex items-start gap-3 min-w-0">
-                  <span
-                    className="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: subj?.color || '#D4A853' }}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[var(--text-main)] truncate">
-                      {subj?.name || 'Disciplina'}
-                    </p>
-                    {top && (
-                      <p className="text-xs text-[var(--text-muted)] truncate">
-                        {top.name}
-                      </p>
-                    )}
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <span className="font-mono-tabular font-bold text-[var(--text-main)]">
-                        {m.accuracyRate?.toFixed(0)}%
-                      </span>
-                      <span className="font-mono-tabular text-[var(--positive)]">
-                        {m.correct} acertos
-                      </span>
-                      <span className="font-mono-tabular text-[var(--negative)]">
-                        {m.incorrect} erros
-                      </span>
-                      {m.blank > 0 && (
-                        <span className="font-mono-tabular text-[var(--text-muted)]">
-                          {m.blank} br
-                        </span>
-                      )}
-                      <span aria-hidden="true" className="text-[var(--border-color)]">·</span>
-                      <span className="font-mono-tabular text-[var(--text-muted)]">
-                        {formatDateBR(q.session_date)}
-                      </span>
-                      {q.exam_board && (
-                        <>
+                <option value="all">Todas as disciplinas</option>
+                {subjects.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </div>
+
+          {filteredSessions.length === 0 ? (
+            <EmptyState
+              icon={ListChecks}
+              title="Nenhuma bateria registrada"
+              description="Registre seus acertos e erros para calcular seu aproveitamento automaticamente."
+            />
+          ) : tab === 'history' ? (
+            <div className="space-y-2.5">
+              {filteredSessions.map((q) => {
+                const subj = subjectMap.get(q.subject_id);
+                const top = q.topic_id ? topicMap.get(q.topic_id) : null;
+                const m = calculateQuestionMetrics({
+                  correct: q.correct_answers,
+                  incorrect: q.incorrect_answers,
+                  blank: q.blank_answers,
+                });
+
+                return (
+                  <Card key={q.id} padding="sm" className="px-4 flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <span
+                        className="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: subj?.color || '#D4A853' }}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[var(--text-main)] truncate">
+                          {subj?.name || 'Disciplina'}
+                        </p>
+                        {top && (
+                          <p className="text-xs text-[var(--text-muted)] truncate">
+                            {top.name}
+                          </p>
+                        )}
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                          <span className="tabular-nums font-bold text-[var(--text-main)]">
+                            {m.accuracyRate?.toFixed(0)}%
+                          </span>
+                          <span className="tabular-nums text-[var(--positive)]">
+                            {m.correct} acertos
+                          </span>
+                          <span className="tabular-nums text-[var(--negative)]">
+                            {m.incorrect} erros
+                          </span>
+                          {m.blank > 0 && (
+                            <span className="tabular-nums text-[var(--text-muted)]">
+                              {m.blank} br
+                            </span>
+                          )}
                           <span aria-hidden="true" className="text-[var(--border-color)]">·</span>
-                          <span className="text-[var(--text-muted)]">{q.exam_board}</span>
-                        </>
-                      )}
+                          <span className="tabular-nums text-[var(--text-muted)]">
+                            {formatDateBR(q.session_date)}
+                          </span>
+                          {q.exam_board && (
+                            <>
+                              <span aria-hidden="true" className="text-[var(--border-color)]">·</span>
+                              <span className="text-[var(--text-muted)]">{q.exam_board}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => openEdit(q)}
-                    className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)]"
-                    aria-label="Editar registro"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteTarget(q)}
-                    className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--negative)]"
-                    aria-label="Excluir registro"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => openEdit(q)}
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                        aria-label="Editar registro"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(q)}
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--negative)]"
+                        aria-label="Excluir registro"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {bySubject.map((item) => {
+                const acc = item.metrics.accuracyRate ?? 0;
+                return (
+                  <Card key={item.subjectId} className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: item.subject?.color || '#D4A853' }}
+                        />
+                        <span className="text-sm font-semibold text-[var(--text-main)] truncate">
+                          {item.subject?.name || 'Disciplina'}
+                        </span>
+                      </div>
+                      <span className="tabular-nums text-base font-bold text-[var(--positive)] shrink-0">
+                        {item.metrics.accuracyRate !== null ? `${item.metrics.accuracyRate.toFixed(0)}%` : '—'}
+                      </span>
+                    </div>
+
+                    <div className="h-2 rounded-full bg-[var(--bg-track)] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[var(--gold)] transition-all"
+                        style={{ width: `${Math.min(100, acc)}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-[var(--text-muted)] tabular-nums">
+                      <span>{item.metrics.total} questões</span>
+                      <span>
+                        <strong className="text-[var(--positive)]">{item.metrics.correct}</strong> acertos ·{' '}
+                        <strong className="text-[var(--negative)]">{item.metrics.incorrect}</strong> erros
+                      </span>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="space-y-2.5">
-          {bySubject.map((item) => {
-            const acc = item.metrics.accuracyRate ?? 0;
-            return (
-              <div
-                key={item.subjectId}
-                className="rounded-2xl border border-[var(--border-color)]/70 bg-[var(--bg-card)] p-4 space-y-2.5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: item.subject?.color || '#D4A853' }}
-                    />
-                    <span className="text-sm font-semibold text-[var(--text-main)] truncate">
-                      {item.subject?.name || 'Disciplina'}
-                    </span>
-                  </div>
-                  <span className="font-mono-tabular text-base font-bold text-[var(--positive)] shrink-0">
-                    {item.metrics.accuracyRate !== null ? `${item.metrics.accuracyRate.toFixed(0)}%` : '—'}
-                  </span>
-                </div>
-
-                <div className="h-2 rounded-full bg-[var(--bg-track)] overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-[var(--gold)] transition-all"
-                    style={{ width: `${Math.min(100, acc)}%` }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-[var(--text-muted)] font-mono-tabular">
-                  <span>{item.metrics.total} questões</span>
-                  <span>
-                    <strong className="text-[var(--positive)]">{item.metrics.correct}</strong> acertos ·{' '}
-                    <strong className="text-[var(--negative)]">{item.metrics.incorrect}</strong> erros
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      </div>
 
       {/* Modal de criação / edição */}
       <Modal
@@ -426,10 +412,8 @@ export const QuestionsPage: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Acertos *
-              </label>
-              <input
+              <FieldLabel>Acertos *</FieldLabel>
+              <Input
                 type="number"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -438,15 +422,13 @@ export const QuestionsPage: React.FC = () => {
                 value={correctStr}
                 onChange={(e) => setCorrectStr(e.target.value)}
                 required
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-[var(--positive)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                className="tabular-nums font-semibold text-[var(--positive)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                Erros *
-              </label>
-              <input
+              <FieldLabel>Erros *</FieldLabel>
+              <Input
                 type="number"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -455,26 +437,23 @@ export const QuestionsPage: React.FC = () => {
                 value={incorrectStr}
                 onChange={(e) => setIncorrectStr(e.target.value)}
                 required
-                className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base font-mono-tabular font-semibold text-[var(--negative)] focus:outline-none focus:ring-2 focus:ring-[#D4A853]"
+                className="tabular-nums font-semibold text-[var(--negative)]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-              Data
-            </label>
-            <input
+            <FieldLabel>Data</FieldLabel>
+            <Input
               type="date"
               value={sessionDate}
               onChange={(e) => setSessionDate(e.target.value)}
               required
-              className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2.5 text-base text-[var(--text-main)]"
             />
           </div>
 
           {previewMetrics && previewMetrics.total > 0 && (
-            <div className="rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] px-3.5 py-2.5 flex items-center justify-between text-xs font-mono-tabular">
+            <div className="rounded-xl bg-[var(--bg-app)] border border-[var(--border-color)] px-3.5 py-2.5 flex items-center justify-between text-xs tabular-nums">
               <span>
                 Total: <strong>{previewMetrics.total}</strong>
               </span>
@@ -501,41 +480,33 @@ export const QuestionsPage: React.FC = () => {
               <div className="mt-2.5 space-y-3 pt-3 border-t border-[var(--border-color)]">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                      Em branco
-                    </label>
-                    <input
+                    <FieldLabel>Em branco</FieldLabel>
+                    <Input
                       type="number"
                       inputMode="numeric"
                       pattern="[0-9]*"
                       min={0}
                       value={blankStr}
                       onChange={(e) => setBlankStr(e.target.value)}
-                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base font-mono-tabular text-[var(--text-main)]"
+                      className="tabular-nums"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                      Banca
-                    </label>
-                    <input
+                    <FieldLabel>Banca</FieldLabel>
+                    <Input
                       type="text"
                       value={examBoard}
                       onChange={(e) => setExamBoard(e.target.value)}
                       placeholder="Ex: Cebraspe"
-                      className="w-full min-h-[46px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
-                    Observações
-                  </label>
-                  <textarea
+                  <FieldLabel>Observações</FieldLabel>
+                  <Textarea
                     rows={2}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-app)] px-3.5 py-2 text-base text-[var(--text-main)]"
                   />
                 </div>
               </div>
@@ -545,13 +516,9 @@ export const QuestionsPage: React.FC = () => {
           {errorMsg && <p className="text-xs font-medium text-[var(--negative)]">{errorMsg}</p>}
 
           <div className="sticky bottom-0 pt-2 bg-[var(--bg-card)]">
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full min-h-[48px] rounded-xl bg-[var(--gold)] text-sm font-semibold text-[var(--gold-ink)] disabled:opacity-60"
-            >
+            <Button type="submit" fullWidth disabled={saving} className="min-h-[48px]">
               {saving ? 'Salvando...' : 'Salvar registro'}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>
